@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
 import { Play, Plus, Check, ChevronDown } from "lucide-react";
@@ -15,29 +15,43 @@ interface ContentCardProps {
   index?: number;
 }
 
+const GRADIENTS = [
+  "from-purple-900 via-indigo-950 to-slate-950",
+  "from-rose-900 via-red-950 to-slate-950",
+  "from-emerald-900 via-teal-950 to-slate-950",
+  "from-amber-900 via-orange-950 to-slate-950",
+  "from-cyan-900 via-blue-950 to-slate-950",
+  "from-violet-900 via-fuchsia-950 to-slate-950",
+];
+
 export default function ContentCard({ item, onSelect, onPlay, index = 0 }: ContentCardProps) {
   const [hovered, setHovered] = useState(false);
   const [imgError, setImgError] = useState(false);
+  const [visible, setVisible] = useState(false);
+  const cardRef = useRef<HTMLDivElement>(null);
   const { isInList, toggle } = useMyList();
-  // Fetch TMDB poster lazily on first hover
-  const { data: tmdbData } = useTMDB(item.tmdbId, item.tmdbType, hovered);
+
+  // Fetch TMDB poster as soon as the card scrolls into view — works on mobile
+  useEffect(() => {
+    const el = cardRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => { if (entry.isIntersecting) setVisible(true); },
+      { rootMargin: "300px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
+  const { data: tmdbData } = useTMDB(item.tmdbId, item.tmdbType, visible);
   const inList = isInList(item.id);
-
-  const fallbackGradients = [
-    "from-purple-900 via-indigo-950 to-slate-950",
-    "from-rose-900 via-red-950 to-slate-950",
-    "from-emerald-900 via-teal-950 to-slate-950",
-    "from-amber-900 via-orange-950 to-slate-950",
-    "from-cyan-900 via-blue-950 to-slate-950",
-    "from-violet-900 via-fuchsia-950 to-slate-950",
-  ];
-  const fallbackGradient = fallbackGradients[index % fallbackGradients.length];
-
   const posterSrc = tmdbData?.posterUrl ?? null;
   const trailerKey = tmdbData?.trailerKey ?? item.trailerYouTubeId;
+  const fallbackGradient = GRADIENTS[index % GRADIENTS.length];
 
   return (
     <motion.div
+      ref={cardRef}
       className="relative flex-shrink-0 w-[155px] sm:w-[185px] lg:w-[210px] snap-item cursor-pointer group"
       onHoverStart={() => setHovered(true)}
       onHoverEnd={() => setHovered(false)}
@@ -47,7 +61,7 @@ export default function ContentCard({ item, onSelect, onPlay, index = 0 }: Conte
       onClick={() => onSelect(item)}
     >
       <div className="relative rounded-xl overflow-hidden aspect-[2/3] shadow-lg card-glow bg-surface-2">
-        {/* Poster — TMDB image preferred, gradient fallback */}
+        {/* Poster */}
         {posterSrc && !imgError ? (
           <Image
             src={posterSrc}
@@ -59,17 +73,18 @@ export default function ContentCard({ item, onSelect, onPlay, index = 0 }: Conte
           />
         ) : (
           <div className={`absolute inset-0 bg-gradient-to-br ${fallbackGradient}`}>
-            {/* Skeleton shimmer while TMDB loads */}
-            {hovered && !tmdbData && (
+            {visible && !tmdbData && (
               <div className="absolute inset-0 skeleton opacity-30" />
             )}
             <div className="absolute inset-0 flex items-end p-3">
-              <span className="text-white/70 font-bold text-sm leading-tight line-clamp-2">{item.title}</span>
+              <span className="text-white/70 font-bold text-sm leading-tight line-clamp-2">
+                {item.title}
+              </span>
             </div>
           </div>
         )}
 
-        {/* Always-on bottom gradient */}
+        {/* Bottom gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-60" />
 
         {/* Hover overlay */}
