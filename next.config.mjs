@@ -2,18 +2,10 @@
 const nextConfig = {
   images: {
     remotePatterns: [
-      {
-        protocol: "https",
-        hostname: "images.unsplash.com",
-      },
-      {
-        protocol: "https",
-        hostname: "picsum.photos",
-      },
-      {
-        protocol: "https",
-        hostname: "via.placeholder.com",
-      },
+      // TMDB — real poster and backdrop artwork
+      { protocol: "https", hostname: "image.tmdb.org" },
+      // Episode thumbnails (placeholder until TMDB episode images wired in)
+      { protocol: "https", hostname: "picsum.photos" },
     ],
   },
 };

@@ -7,11 +7,18 @@ import Link from "next/link";
 import { useMyList } from "@/app/hooks/useMyList";
 import ContentCard from "@/app/components/ContentCard";
 import TitleModal from "@/app/components/TitleModal";
+import TrailerPlayer from "@/app/components/TrailerPlayer";
 import type { ContentItem } from "@/data/content";
 
 export default function MyListPage() {
   const { list, loaded } = useMyList();
   const [selected, setSelected] = useState<ContentItem | null>(null);
+  const [trailer, setTrailer] = useState<{ videoId: string; title: string } | null>(null);
+
+  const handlePlay = (item: ContentItem, trailerKey?: string) => {
+    const vid = trailerKey ?? item.trailerYouTubeId;
+    if (vid) setTrailer({ videoId: vid, title: item.title });
+  };
 
   return (
     <main className="min-h-screen bg-base pt-24 pb-20">
@@ -29,12 +36,11 @@ export default function MyListPage() {
                 ? list.length > 0
                   ? `${list.length} title${list.length !== 1 ? "s" : ""} saved`
                   : "Your watchlist is empty"
-
                 : "Loading…"}
             </p>
           </div>
           {list.length > 0 && (
-            <span className="text-text-muted text-sm">Sorted by recently added</span>
+            <span className="text-text-muted text-sm">Recently added first</span>
           )}
         </motion.div>
 
@@ -90,7 +96,7 @@ export default function MyListPage() {
                   exit={{ opacity: 0, scale: 0.85 }}
                   transition={{ delay: i * 0.04, duration: 0.35 }}
                 >
-                  <ContentCard item={item} onSelect={setSelected} index={i} />
+                  <ContentCard item={item} onSelect={setSelected} onPlay={handlePlay} index={i} />
                 </motion.div>
               ))}
             </motion.div>
@@ -98,7 +104,12 @@ export default function MyListPage() {
         </AnimatePresence>
       </div>
 
-      <TitleModal item={selected} onClose={() => setSelected(null)} />
+      <TitleModal item={selected} onClose={() => setSelected(null)} onPlay={handlePlay} />
+      <TrailerPlayer
+        videoId={trailer?.videoId ?? null}
+        title={trailer?.title ?? ""}
+        onClose={() => setTrailer(null)}
+      />
     </main>
   );
 }

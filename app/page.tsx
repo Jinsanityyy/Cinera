@@ -5,6 +5,7 @@ import { motion } from "framer-motion";
 import HeroBanner from "./components/HeroBanner";
 import ContentRow from "./components/ContentRow";
 import TitleModal from "./components/TitleModal";
+import TrailerPlayer from "./components/TrailerPlayer";
 import { allContent, rows } from "@/data/content";
 import type { ContentItem } from "@/data/content";
 
@@ -17,10 +18,18 @@ const heroItems: ContentItem[] = [
 
 export default function HomePage() {
   const [selected, setSelected] = useState<ContentItem | null>(null);
+  const [trailer, setTrailer] = useState<{ videoId: string; title: string } | null>(null);
+
+  const handlePlay = (item: ContentItem, trailerKey?: string) => {
+    const vid = trailerKey ?? item.trailerYouTubeId;
+    if (vid) {
+      setTrailer({ videoId: vid, title: item.title });
+    }
+  };
 
   return (
     <main className="min-h-screen bg-base">
-      <HeroBanner items={heroItems} onMoreInfo={setSelected} />
+      <HeroBanner items={heroItems} onMoreInfo={setSelected} onPlay={handlePlay} />
 
       <section className="relative z-10 -mt-16 sm:-mt-24 space-y-6 pb-20">
         {rows.map((row, i) => (
@@ -34,6 +43,7 @@ export default function HomePage() {
               label={row.label}
               items={row.items}
               onSelect={setSelected}
+              onPlay={handlePlay}
             />
           </motion.div>
         ))}
@@ -41,7 +51,10 @@ export default function HomePage() {
 
       <footer className="border-t border-border-subtle py-10 px-6 sm:px-10 lg:px-16">
         <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">
-          <p className="text-text-muted text-sm">© 2025 STREAMR. All rights reserved.</p>
+          <div className="flex items-center gap-3">
+            <span className="text-text-muted text-sm">© 2025 CINERA.</span>
+            <span className="text-text-muted text-xs opacity-60">A content discovery platform. We do not host or stream full titles.</span>
+          </div>
           <div className="flex items-center gap-6 text-text-muted text-xs">
             {["Terms", "Privacy", "Accessibility", "Help Center"].map((l) => (
               <span key={l} className="hover:text-white/60 cursor-pointer transition-colors">{l}</span>
@@ -50,7 +63,12 @@ export default function HomePage() {
         </div>
       </footer>
 
-      <TitleModal item={selected} onClose={() => setSelected(null)} />
+      <TitleModal item={selected} onClose={() => setSelected(null)} onPlay={handlePlay} />
+      <TrailerPlayer
+        videoId={trailer?.videoId ?? null}
+        title={trailer?.title ?? ""}
+        onClose={() => setTrailer(null)}
+      />
     </main>
   );
 }

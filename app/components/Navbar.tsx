@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Bell, ChevronDown, Menu, X, Play } from "lucide-react";
+import { Search, Bell, ChevronDown, Menu, X } from "lucide-react";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -35,14 +35,25 @@ export default function Navbar() {
       >
         <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
           <div className="flex items-center justify-between h-16 lg:h-[72px]">
-            {/* Logo */}
-            <Link href="/" className="flex items-center gap-2 flex-shrink-0 group">
-              <div className="relative w-8 h-8 flex items-center justify-center">
-                <div className="absolute inset-0 rounded-sm bg-gradient-to-br from-accent-purple to-accent-crimson opacity-90 group-hover:opacity-100 transition-opacity" />
-                <Play className="relative w-4 h-4 text-white fill-white" />
+            {/* Wordmark */}
+            <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 group">
+              {/* Logo mark — refined diamond-play geometry */}
+              <div className="relative w-7 h-7 flex-shrink-0">
+                <svg viewBox="0 0 28 28" fill="none" className="w-full h-full drop-shadow-lg">
+                  <defs>
+                    <linearGradient id="cineraGrad" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
+                      <stop offset="0%" stopColor="#7b5cf0" />
+                      <stop offset="100%" stopColor="#e31c25" />
+                    </linearGradient>
+                  </defs>
+                  {/* Diamond background */}
+                  <path d="M14 2L26 14L14 26L2 14Z" fill="url(#cineraGrad)" opacity="0.9" />
+                  {/* Play triangle */}
+                  <path d="M11 9.5L20 14L11 18.5V9.5Z" fill="white" fillOpacity="0.95" />
+                </svg>
               </div>
-              <span className="text-2xl font-black tracking-[0.25em] text-white select-none">
-                STREAMR
+              <span className="text-xl font-black tracking-[0.22em] text-white select-none group-hover:text-white/90 transition-colors">
+                CINERA
               </span>
             </Link>
 
@@ -73,7 +84,10 @@ export default function Navbar() {
                 <Search className="w-5 h-5" />
               </Link>
 
-              <button className="hidden sm:flex p-2 rounded-lg text-text-secondary hover:text-white hover:bg-white/10 transition-all duration-200 relative" aria-label="Notifications">
+              <button
+                className="hidden sm:flex p-2 rounded-lg text-text-secondary hover:text-white hover:bg-white/10 transition-all duration-200 relative"
+                aria-label="Notifications"
+              >
                 <Bell className="w-5 h-5" />
                 <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-accent-crimson rounded-full" />
               </button>
@@ -85,7 +99,6 @@ export default function Navbar() {
                 <ChevronDown className="hidden sm:block w-4 h-4 text-text-secondary group-hover:text-white transition-colors" />
               </Link>
 
-              {/* Mobile menu toggle */}
               <button
                 className="lg:hidden p-2 rounded-lg text-text-secondary hover:text-white hover:bg-white/10 transition-all"
                 onClick={() => setMobileOpen(!mobileOpen)}
@@ -107,7 +120,10 @@ export default function Navbar() {
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
           >
-            <div className="absolute inset-0 bg-base/80 modal-backdrop" onClick={() => setMobileOpen(false)} />
+            <div
+              className="absolute inset-0 bg-base/80 modal-backdrop"
+              onClick={() => setMobileOpen(false)}
+            />
             <motion.nav
               className="absolute top-16 left-0 right-0 bg-surface border-b border-border-subtle p-4 flex flex-col gap-1"
               initial={{ y: -20, opacity: 0 }}

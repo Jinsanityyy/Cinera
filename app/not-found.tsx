@@ -19,7 +19,6 @@ export default function NotFound() {
         transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
         className="relative text-center space-y-8 max-w-lg"
       >
-        {/* 404 */}
         <motion.div
           initial={{ scale: 0.8, opacity: 0 }}
           animate={{ scale: 1, opacity: 1 }}
@@ -35,11 +34,10 @@ export default function NotFound() {
         </motion.div>
 
         <div className="space-y-3">
-          <h1 className="text-2xl sm:text-3xl font-black text-white">
-            Lost in the stream
-          </h1>
+          <h1 className="text-2xl sm:text-3xl font-black text-white">Lost in the stream</h1>
           <p className="text-text-secondary text-base leading-relaxed">
-            The page you&apos;re looking for has vanished into the void — much like the residents of FROM. Let&apos;s get you back.
+            The page you&apos;re looking for has vanished — much like the residents of FROM.
+            Let&apos;s get you back to discovering great content.
           </p>
         </div>
 
@@ -59,6 +57,8 @@ export default function NotFound() {
             Browse
           </Link>
         </div>
+
+        <p className="text-text-muted text-xs">CINERA · Content Discovery</p>
       </motion.div>
     </main>
   );

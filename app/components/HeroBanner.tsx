@@ -3,20 +3,47 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Plus, Info, Check, Volume2, VolumeX } from "lucide-react";
+import { Play, Plus, Info, Check, VolumeX, Volume2 } from "lucide-react";
 import { ContentItem } from "@/data/content";
 import { useMyList } from "@/app/hooks/useMyList";
+import { useTMDB } from "@/app/hooks/useTMDB";
 
 interface HeroBannerProps {
   items: ContentItem[];
   onMoreInfo: (item: ContentItem) => void;
+  onPlay: (item: ContentItem, trailerKey?: string) => void;
 }
 
-export default function HeroBanner({ items, onMoreInfo }: HeroBannerProps) {
+function HeroBackdrop({ item }: { item: ContentItem }) {
+  const { data } = useTMDB(item.tmdbId, item.tmdbType, true);
+  const src = data?.backdropUrl ?? null;
+
+  return (
+    <div className="absolute inset-0 ken-burns">
+      {src ? (
+        <Image
+          src={src}
+          alt={item.title}
+          fill
+          className="object-cover object-top"
+          priority
+          sizes="100vw"
+        />
+      ) : (
+        // Gradient fallback — uses the tailwind class stored in backdropUrl
+        <div className={`absolute inset-0 bg-gradient-to-br ${item.backdropUrl}`} />
+      )}
+    </div>
+  );
+}
+
+export default function HeroBanner({ items, onMoreInfo, onPlay }: HeroBannerProps) {
   const [current, setCurrent] = useState(0);
   const [muted, setMuted] = useState(true);
   const { isInList, toggle } = useMyList();
+
   const item = items[current] ?? items[0];
+  const { data: tmdbData } = useTMDB(item?.tmdbId, item?.tmdbType, true);
 
   const next = useCallback(() => {
     setCurrent((c) => (c + 1) % items.length);
@@ -30,10 +57,11 @@ export default function HeroBanner({ items, onMoreInfo }: HeroBannerProps) {
   if (!item) return null;
 
   const inList = isInList(item.id);
+  const trailerKey = tmdbData?.trailerKey ?? item.trailerYouTubeId;
 
   return (
     <section className="relative w-full h-[85vh] min-h-[560px] max-h-[900px] overflow-hidden bg-base">
-      {/* Backdrop */}
+      {/* Backdrop (crossfade between items) */}
       <AnimatePresence mode="wait">
         <motion.div
           key={item.id}
@@ -43,16 +71,7 @@ export default function HeroBanner({ items, onMoreInfo }: HeroBannerProps) {
           exit={{ opacity: 0 }}
           transition={{ duration: 1.2, ease: "easeInOut" }}
         >
-          <div className="absolute inset-0 ken-burns">
-            <Image
-              src={item.backdropUrl}
-              alt={item.title}
-              fill
-              className="object-cover object-center"
-              priority
-              sizes="100vw"
-            />
-          </div>
+          <HeroBackdrop item={item} />
         </motion.div>
       </AnimatePresence>
 
@@ -62,13 +81,9 @@ export default function HeroBanner({ items, onMoreInfo }: HeroBannerProps) {
       {/* Vignette */}
       <div className="vignette absolute inset-0 z-[2] pointer-events-none" />
 
-      {/* Bottom scrim */}
+      {/* Scrims */}
       <div className="absolute inset-0 z-[3] hero-scrim pointer-events-none" />
-
-      {/* Left scrim */}
       <div className="absolute inset-0 z-[3] hero-scrim-left pointer-events-none" />
-
-      {/* Top gradient (for nav readability) */}
       <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-base/60 to-transparent z-[3] pointer-events-none" />
 
       {/* Content */}
@@ -121,9 +136,7 @@ export default function HeroBanner({ items, onMoreInfo }: HeroBannerProps) {
                 {item.matchPercent}% Match
               </span>
               {item.genres.slice(0, 3).map((g) => (
-                <span key={g} className="text-xs text-white/50 font-medium">
-                  {g}
-                </span>
+                <span key={g} className="text-xs text-white/50 font-medium">{g}</span>
               ))}
             </div>
 
@@ -137,10 +150,11 @@ export default function HeroBanner({ items, onMoreInfo }: HeroBannerProps) {
               <motion.button
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
+                onClick={() => onPlay(item, trailerKey)}
                 className="flex items-center gap-2.5 px-7 py-3 bg-white text-black font-bold text-sm rounded-lg hover:bg-white/90 transition-colors shadow-xl"
               >
                 <Play className="w-5 h-5 fill-black" />
-                Play
+                Play Trailer
               </motion.button>
 
               <motion.button

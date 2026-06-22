@@ -7,20 +7,28 @@ import { allContent, allGenres } from "@/data/content";
 import type { ContentItem } from "@/data/content";
 import ContentCard from "@/app/components/ContentCard";
 import TitleModal from "@/app/components/TitleModal";
+import TrailerPlayer from "@/app/components/TrailerPlayer";
 
 export default function BrowsePage() {
   const [query, setQuery] = useState("");
   const [genre, setGenre] = useState("All");
   const [typeFilter, setTypeFilter] = useState<"all" | "movie" | "series">("all");
   const [selected, setSelected] = useState<ContentItem | null>(null);
+  const [trailer, setTrailer] = useState<{ videoId: string; title: string } | null>(null);
+
+  const handlePlay = (item: ContentItem, trailerKey?: string) => {
+    const vid = trailerKey ?? item.trailerYouTubeId;
+    if (vid) setTrailer({ videoId: vid, title: item.title });
+  };
 
   const filtered = useMemo(() => {
     return allContent.filter((item) => {
+      const q = query.toLowerCase();
       const matchesQuery =
-        !query ||
-        item.title.toLowerCase().includes(query.toLowerCase()) ||
-        item.synopsis.toLowerCase().includes(query.toLowerCase()) ||
-        item.genres.some((g) => g.toLowerCase().includes(query.toLowerCase()));
+        !q ||
+        item.title.toLowerCase().includes(q) ||
+        item.synopsis.toLowerCase().includes(q) ||
+        item.genres.some((g) => g.toLowerCase().includes(q));
       const matchesGenre = genre === "All" || item.genres.includes(genre);
       const matchesType = typeFilter === "all" || item.type === typeFilter;
       return matchesQuery && matchesGenre && matchesType;
@@ -38,7 +46,9 @@ export default function BrowsePage() {
           className="space-y-2"
         >
           <h1 className="text-4xl sm:text-5xl font-black text-white tracking-tight">Browse</h1>
-          <p className="text-text-secondary text-base">Explore {allContent.length} titles across all genres</p>
+          <p className="text-text-secondary text-base">
+            Discover {allContent.length} titles · Find where to watch legally
+          </p>
         </motion.div>
 
         {/* Search bar */}
@@ -51,7 +61,7 @@ export default function BrowsePage() {
           <Search className="absolute left-4 top-1/2 -translate-y-1/2 w-5 h-5 text-text-muted pointer-events-none" />
           <input
             type="search"
-            placeholder="Search titles, genres, cast..."
+            placeholder="Search titles, genres, cast…"
             value={query}
             onChange={(e) => setQuery(e.target.value)}
             className="w-full bg-surface border border-border-subtle rounded-xl py-4 pl-12 pr-12 text-white placeholder-text-muted text-base focus:outline-none focus:border-accent-purple transition-colors"
@@ -75,7 +85,6 @@ export default function BrowsePage() {
           transition={{ delay: 0.15, duration: 0.5 }}
           className="space-y-3"
         >
-          {/* Type filter */}
           <div className="flex items-center gap-2">
             {(["all", "series", "movie"] as const).map((t) => (
               <button
@@ -92,7 +101,6 @@ export default function BrowsePage() {
             ))}
           </div>
 
-          {/* Genre chips */}
           <div className="flex flex-wrap gap-2">
             {allGenres.map((g) => (
               <motion.button
@@ -112,12 +120,10 @@ export default function BrowsePage() {
           </div>
         </motion.div>
 
-        {/* Results count */}
+        {/* Count */}
         <div className="flex items-center justify-between">
           <p className="text-text-muted text-sm">
-            {filtered.length === 0
-              ? "No results"
-              : `${filtered.length} title${filtered.length !== 1 ? "s" : ""}`}
+            {filtered.length === 0 ? "No results" : `${filtered.length} title${filtered.length !== 1 ? "s" : ""}`}
             {(query || genre !== "All" || typeFilter !== "all") && " found"}
           </p>
           {(query || genre !== "All" || typeFilter !== "all") && (
@@ -146,7 +152,7 @@ export default function BrowsePage() {
                   exit={{ opacity: 0, scale: 0.9 }}
                   transition={{ delay: i * 0.02, duration: 0.3 }}
                 >
-                  <ContentCard item={item} onSelect={setSelected} index={i} />
+                  <ContentCard item={item} onSelect={setSelected} onPlay={handlePlay} index={i} />
                 </motion.div>
               ))}
             </motion.div>
@@ -160,15 +166,18 @@ export default function BrowsePage() {
                 <Search className="w-8 h-8 text-text-muted" />
               </div>
               <p className="text-white font-semibold text-lg">No titles found</p>
-              <p className="text-text-muted text-sm max-w-xs">
-                Try different keywords or remove some filters
-              </p>
+              <p className="text-text-muted text-sm max-w-xs">Try different keywords or remove some filters</p>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
 
-      <TitleModal item={selected} onClose={() => setSelected(null)} />
+      <TitleModal item={selected} onClose={() => setSelected(null)} onPlay={handlePlay} />
+      <TrailerPlayer
+        videoId={trailer?.videoId ?? null}
+        title={trailer?.title ?? ""}
+        onClose={() => setTrailer(null)}
+      />
     </main>
   );
 }

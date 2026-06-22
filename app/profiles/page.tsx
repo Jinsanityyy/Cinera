@@ -32,9 +32,10 @@ export default function ProfilesPage() {
       >
         {/* Logo */}
         <div className="text-center space-y-2">
-          <div className="text-4xl sm:text-5xl font-black tracking-[0.25em] text-white">
-            STREAMR
+          <div className="text-4xl sm:text-5xl font-black tracking-[0.22em] text-white">
+            CINERA
           </div>
+          <p className="text-text-muted text-xs tracking-widest uppercase">Content Discovery</p>
         </div>
 
         {/* Heading */}

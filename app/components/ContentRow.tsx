@@ -10,9 +10,10 @@ interface ContentRowProps {
   label: string;
   items: ContentItem[];
   onSelect: (item: ContentItem) => void;
+  onPlay?: (item: ContentItem, trailerKey?: string) => void;
 }
 
-export default function ContentRow({ label, items, onSelect }: ContentRowProps) {
+export default function ContentRow({ label, items, onSelect, onPlay }: ContentRowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
   const [showLeft, setShowLeft] = useState(false);
   const [showRight, setShowRight] = useState(true);
@@ -86,6 +87,7 @@ export default function ContentRow({ label, items, onSelect }: ContentRowProps) 
               key={item.id}
               item={item}
               onSelect={onSelect}
+              onPlay={onPlay}
               index={i}
             />
           ))}
