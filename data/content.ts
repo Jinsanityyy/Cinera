@@ -57,7 +57,7 @@ const content: ContentItem[] = [
     id: "from-mgm",
     title: "FROM",
     type: "series",
-    tmdbId: 121168,
+    tmdbId: 99966,
     tmdbType: "tv",
     backdropUrl: G.mystery,
     posterUrl: G.mystery,
