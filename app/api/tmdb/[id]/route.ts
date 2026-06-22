@@ -13,7 +13,11 @@ export async function GET(
   const tmdbType =
     (req.nextUrl.searchParams.get("type") as "movie" | "tv") ?? "tv";
 
-  if (!process.env.TMDB_API_KEY) {
+  const hasKey = !!process.env.TMDB_API_KEY;
+  console.log(`[TMDB] id=${tmdbId} type=${tmdbType} key_present=${hasKey}`);
+
+  if (!hasKey) {
+    console.warn("[TMDB] TMDB_API_KEY is not set — returning empty data");
     return NextResponse.json(
       { backdropUrl: null, posterUrl: null, trailerKey: null, providers: [] },
       { status: 200 }
@@ -22,10 +26,12 @@ export async function GET(
 
   try {
     const data = await fetchTMDBData(tmdbId, tmdbType);
+    console.log(`[TMDB] id=${tmdbId} backdrop=${data.backdropUrl ? "ok" : "null"} poster=${data.posterUrl ? "ok" : "null"} trailer=${data.trailerKey ?? "null"} providers=${data.providers.length}`);
     return NextResponse.json(data, {
       headers: { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=3600" },
     });
-  } catch {
+  } catch (err) {
+    console.error(`[TMDB] id=${tmdbId} fetch failed:`, err);
     return NextResponse.json(
       { backdropUrl: null, posterUrl: null, trailerKey: null, providers: [] },
       { status: 200 }

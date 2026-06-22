@@ -47,7 +47,7 @@ export default function TrailerPlayer({ videoId, title, onClose }: TrailerPlayer
         >
           {/* Backdrop */}
           <motion.div
-            className="absolute inset-0 bg-black/97 modal-backdrop"
+            className="absolute inset-0 bg-black/95 modal-backdrop"
             onClick={onClose}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
