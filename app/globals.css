@@ -1,0 +1,189 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root {
+  --font-display: "Bebas Neue", "Impact", sans-serif;
+  --font-sans: "Inter", system-ui, sans-serif;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background-color: #0a0a0f;
+  color: #f0f0f5;
+  font-family: var(--font-sans), system-ui, sans-serif;
+  overflow-x: hidden;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 4px;
+  height: 4px;
+}
+::-webkit-scrollbar-track {
+  background: #111117;
+}
+::-webkit-scrollbar-thumb {
+  background: #2a2a35;
+  border-radius: 2px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: #7b5cf0;
+}
+
+/* Hide scrollbar for carousels */
+.scrollbar-hide {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+/* Film grain texture */
+.film-grain::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 200 200' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)' opacity='0.05'/%3E%3C/svg%3E");
+  background-size: 180px;
+  opacity: 0.35;
+  mix-blend-mode: overlay;
+}
+
+/* Vignette overlay */
+.vignette::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: radial-gradient(ellipse at center, transparent 40%, rgba(10, 10, 15, 0.7) 100%);
+  z-index: 1;
+}
+
+/* Hero scrim gradients */
+.hero-scrim {
+  background: linear-gradient(
+    to top,
+    #0a0a0f 0%,
+    rgba(10, 10, 15, 0.85) 25%,
+    rgba(10, 10, 15, 0.4) 55%,
+    transparent 100%
+  );
+}
+
+.hero-scrim-left {
+  background: linear-gradient(
+    to right,
+    rgba(10, 10, 15, 0.95) 0%,
+    rgba(10, 10, 15, 0.7) 35%,
+    rgba(10, 10, 15, 0.2) 65%,
+    transparent 100%
+  );
+}
+
+/* Shimmer skeleton */
+.skeleton {
+  background: linear-gradient(
+    90deg,
+    #1e1e27 0%,
+    #2a2a35 50%,
+    #1e1e27 100%
+  );
+  background-size: 200% 100%;
+  animation: shimmer 2s linear infinite;
+}
+
+@keyframes shimmer {
+  0% { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+
+/* Ken Burns zoom */
+.ken-burns {
+  animation: kenBurns 20s ease-in-out infinite alternate;
+  transform-origin: center center;
+}
+
+@keyframes kenBurns {
+  0% { transform: scale(1) translate(0%, 0%); }
+  100% { transform: scale(1.12) translate(-2%, -1%); }
+}
+
+/* Glass morphism nav */
+.glass-nav {
+  backdrop-filter: blur(20px);
+  -webkit-backdrop-filter: blur(20px);
+  background: rgba(10, 10, 15, 0.85);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+}
+
+/* Snap scroll for carousels */
+.snap-scroll {
+  scroll-snap-type: x mandatory;
+  -webkit-overflow-scrolling: touch;
+}
+
+.snap-item {
+  scroll-snap-align: start;
+}
+
+/* Focus trap visible */
+:focus-visible {
+  outline: 2px solid #7b5cf0;
+  outline-offset: 2px;
+}
+
+/* Modal backdrop blur */
+.modal-backdrop {
+  backdrop-filter: blur(8px);
+  -webkit-backdrop-filter: blur(8px);
+}
+
+/* Purple glow accent */
+.glow-purple {
+  box-shadow: 0 0 30px rgba(123, 92, 240, 0.3), 0 0 60px rgba(123, 92, 240, 0.15);
+}
+
+/* Gradient text */
+.gradient-text {
+  background: linear-gradient(135deg, #f0f0f5 0%, #a78bfa 50%, #ec4899 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+/* Match percent colors */
+.match-high { color: #4ade80; }
+.match-med  { color: #fbbf24; }
+
+/* Card inner glow on hover */
+.card-glow:hover {
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.8), 0 0 0 1px rgba(123, 92, 240, 0.2);
+}
+
+/* Transition utilities */
+.transition-gpu {
+  transition-property: transform, opacity;
+  will-change: transform, opacity;
+}
+
+/* Page transition wrapper */
+.page-enter {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(8px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
