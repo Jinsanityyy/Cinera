@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Play, Plus, Check, Share2, ExternalLink, Tv2, Film, Loader2 } from "lucide-react";
+import { X, Play, Plus, Check, Share2, ExternalLink, Tv2, Film, Loader2, MonitorPlay } from "lucide-react";
 import { ContentItem } from "@/data/content";
 import { useMyList } from "@/app/hooks/useMyList";
 import { useTMDB, type TMDBData } from "@/app/hooks/useTMDB";
@@ -12,6 +12,7 @@ interface TitleModalProps {
   item: ContentItem | null;
   onClose: () => void;
   onPlay: (item: ContentItem, trailerKey?: string) => void;
+  onWatch: (item: ContentItem) => void;
 }
 
 // ─── Where to Watch section ──────────────────────────────────────────────────
@@ -101,7 +102,7 @@ function WatchProviders({ tmdbData, loading }: { tmdbData: TMDBData | null; load
 
 // ─── Main modal ──────────────────────────────────────────────────────────────
 
-export default function TitleModal({ item, onClose, onPlay }: TitleModalProps) {
+export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModalProps) {
   const [selectedSeason, setSelectedSeason] = useState(0);
   const { isInList, toggle } = useMyList();
   const closeRef = useRef<HTMLButtonElement>(null);
@@ -262,6 +263,17 @@ export default function TitleModal({ item, onClose, onPlay }: TitleModalProps) {
                   </div>
 
                   <div className="flex items-center gap-2 flex-shrink-0">
+                    {/* Watch Now — opens multi-server video player */}
+                    <motion.button
+                      whileHover={{ scale: 1.05 }}
+                      whileTap={{ scale: 0.95 }}
+                      onClick={() => onWatch(item)}
+                      className="flex items-center gap-2 px-5 py-2.5 bg-accent-purple text-white font-bold text-sm rounded-lg shadow-lg shadow-accent-purple/25 hover:bg-accent-purple/90 transition-colors"
+                    >
+                      <MonitorPlay className="w-4 h-4" />
+                      Watch Now
+                    </motion.button>
+
                     {trailerKey ? (
                       <motion.button
                         whileHover={{ scale: 1.05 }}

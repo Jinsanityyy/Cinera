@@ -1,3 +1,9 @@
+export type VideoSource = {
+  name: string;
+  url: string;
+  type: "hls" | "mp4" | "embed";
+};
+
 export type Episode = {
   id: string;
   title: string;
@@ -30,6 +36,7 @@ export type ContentItem = {
   genres: string[];
   matchPercent: number;
   trailerYouTubeId: string;
+  sources?: VideoSource[];
   duration?: string;
   seasons?: Season[];
   featured?: boolean;

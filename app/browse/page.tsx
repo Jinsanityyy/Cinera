@@ -8,6 +8,7 @@ import type { ContentItem } from "@/data/content";
 import ContentCard from "@/app/components/ContentCard";
 import TitleModal from "@/app/components/TitleModal";
 import TrailerPlayer from "@/app/components/TrailerPlayer";
+import VideoPlayer from "@/app/components/VideoPlayer";
 
 export default function BrowsePage() {
   const [query, setQuery] = useState("");
@@ -15,10 +16,16 @@ export default function BrowsePage() {
   const [typeFilter, setTypeFilter] = useState<"all" | "movie" | "series">("all");
   const [selected, setSelected] = useState<ContentItem | null>(null);
   const [trailer, setTrailer] = useState<{ videoId: string; title: string } | null>(null);
+  const [video, setVideo] = useState<{ contentId: string; title: string } | null>(null);
 
   const handlePlay = (item: ContentItem, trailerKey?: string) => {
     const vid = trailerKey ?? item.trailerYouTubeId;
     if (vid) setTrailer({ videoId: vid, title: item.title });
+  };
+
+  const handleWatch = (item: ContentItem) => {
+    setSelected(null);
+    setVideo({ contentId: item.id, title: item.title });
   };
 
   const filtered = useMemo(() => {
@@ -172,11 +179,21 @@ export default function BrowsePage() {
         </AnimatePresence>
       </div>
 
-      <TitleModal item={selected} onClose={() => setSelected(null)} onPlay={handlePlay} />
+      <TitleModal
+        item={selected}
+        onClose={() => setSelected(null)}
+        onPlay={handlePlay}
+        onWatch={handleWatch}
+      />
       <TrailerPlayer
         videoId={trailer?.videoId ?? null}
         title={trailer?.title ?? ""}
         onClose={() => setTrailer(null)}
+      />
+      <VideoPlayer
+        contentId={video?.contentId ?? null}
+        title={video?.title ?? ""}
+        onClose={() => setVideo(null)}
       />
     </main>
   );
