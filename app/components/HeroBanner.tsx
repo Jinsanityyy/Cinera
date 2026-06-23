@@ -94,6 +94,26 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
     setCurrent((c) => (c + 1) % items.length);
   }, [items.length]);
 
+  const prev = useCallback(() => {
+    setCurrent((c) => (c - 1 + items.length) % items.length);
+  }, [items.length]);
+
+  const touchStartX = useRef(0);
+  const touchStartY = useRef(0);
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    touchStartX.current = e.touches[0].clientX;
+    touchStartY.current = e.touches[0].clientY;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const dx = e.changedTouches[0].clientX - touchStartX.current;
+    const dy = Math.abs(e.changedTouches[0].clientY - touchStartY.current);
+    if (Math.abs(dx) > 48 && dy < 80) {
+      if (dx < 0) next(); else prev();
+    }
+  };
+
   useEffect(() => {
     scheduleTrailer();
   }, [current, scheduleTrailer]);
@@ -151,7 +171,11 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
       : null;
 
   return (
-    <section className="relative w-full h-[42vh] sm:h-[75vh] lg:h-[85vh] min-h-[270px] sm:min-h-[480px] lg:min-h-[560px] max-h-[900px] overflow-hidden bg-base">
+    <section
+      className="relative w-full h-[42vh] sm:h-[75vh] lg:h-[85vh] min-h-[270px] sm:min-h-[480px] lg:min-h-[560px] max-h-[900px] overflow-hidden bg-base"
+      onTouchStart={handleTouchStart}
+      onTouchEnd={handleTouchEnd}
+    >
       {/* Backdrop */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -293,8 +317,8 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
         </AnimatePresence>
       </div>
 
-      {/* Bottom-right controls: mute toggle + slide indicators — hidden on mobile */}
-      <div className="hidden sm:flex absolute bottom-6 right-6 sm:right-10 z-10 items-center gap-3">
+      {/* Bottom-right controls: mute toggle + slide indicators */}
+      <div className="absolute bottom-4 sm:bottom-6 right-4 sm:right-10 z-10 flex items-center gap-3">
         <AnimatePresence>
           {trailerActive && (
             <motion.button
@@ -303,25 +327,26 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ duration: 0.2 }}
               onClick={toggleMute}
-              className="w-8 h-8 rounded-full border border-white/30 bg-black/40 backdrop-blur-sm flex items-center justify-center hover:border-white/60 transition-colors"
+              className="w-10 h-10 sm:w-8 sm:h-8 rounded-full border border-white/30 bg-black/40 backdrop-blur-sm flex items-center justify-center hover:border-white/60 transition-colors"
               aria-label={muted ? "Unmute trailer" : "Mute trailer"}
             >
               {muted ? (
-                <VolumeX className="w-3.5 h-3.5 text-white" />
+                <VolumeX className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-white" />
               ) : (
-                <Volume2 className="w-3.5 h-3.5 text-white" />
+                <Volume2 className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-white" />
               )}
             </motion.button>
           )}
         </AnimatePresence>
 
+        {/* Dots — clickable on desktop, swipe on mobile */}
         <div className="flex items-center gap-2">
           {items.map((_, i) => (
             <button
               key={i}
               onClick={() => setCurrent(i)}
-              className={`h-0.5 rounded-full transition-all duration-500 ${
-                i === current ? "w-8 bg-white" : "w-3 bg-white/30 hover:bg-white/50"
+              className={`h-1 rounded-full transition-all duration-500 ${
+                i === current ? "w-6 bg-white" : "w-2 bg-white/30"
               }`}
               aria-label={`Go to slide ${i + 1}`}
             />

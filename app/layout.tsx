@@ -59,7 +59,7 @@ export default function RootLayout({
       <body className={`${inter.variable} bg-base text-text-primary antialiased`}>
         <RegisterSW />
         <Navbar />
-        <div className="pb-[90px] lg:pb-0">
+        <div className="pb-nav-safe">
           {children}
         </div>
         <BottomNav />

@@ -42,7 +42,7 @@ export default function ContentRow({ label, items, onSelect, onPlay }: ContentRo
       onMouseLeave={() => setRowHovered(false)}
     >
       {/* Row header */}
-      <div className="flex items-center justify-between px-3 sm:px-8 lg:px-16 mb-3">
+      <div className="flex items-center justify-between px-3 sm:px-8 lg:px-16 py-1 mb-3">
         <h2 className="text-white font-bold text-[15px] sm:text-lg tracking-tight">{label}</h2>
         {/* "See all" always visible on mobile, hover-only on desktop */}
         <motion.span
@@ -83,7 +83,7 @@ export default function ContentRow({ label, items, onSelect, onPlay }: ContentRo
         <div
           ref={scrollRef}
           onScroll={updateArrows}
-          className="flex gap-3 overflow-x-auto scrollbar-hide snap-scroll px-3 sm:px-8 lg:px-16 pb-4"
+          className="flex gap-3 sm:gap-3 overflow-x-auto scrollbar-hide snap-scroll px-3 sm:px-8 lg:px-16 pb-4 pr-8 sm:pr-0"
           style={{ scrollPaddingLeft: "64px" }}
         >
           {items.map((item, i) => (
@@ -96,7 +96,7 @@ export default function ContentRow({ label, items, onSelect, onPlay }: ContentRo
             />
           ))}
           {/* End padding */}
-          <div className="flex-shrink-0 w-4 sm:w-8 lg:w-14" />
+          <div className="flex-shrink-0 w-2 sm:w-8 lg:w-14" />
         </div>
 
         {/* Right arrow */}

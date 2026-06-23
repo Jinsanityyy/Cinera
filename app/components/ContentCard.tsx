@@ -85,6 +85,7 @@ export default function ContentCard({ item, onSelect, onPlay, index = 0 }: Conte
       onHoverEnd={handleHoverEnd}
       animate={{ scale: hovered ? 1.15 : 1, zIndex: hovered ? 50 : 1 }}
       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+      whileTap={{ scale: 0.96 }}
       style={{ zIndex: hovered ? 50 : 1 }}
       onClick={() => onSelect(item)}
     >
@@ -102,15 +103,12 @@ export default function ContentCard({ item, onSelect, onPlay, index = 0 }: Conte
             sizes="(max-width: 480px) 140px, (max-width: 1024px) 155px, 210px"
             onError={() => setImgError(true)}
           />
+        ) : visible && !tmdbData ? (
+          <div className="absolute inset-0 skeleton rounded-xl" />
         ) : (
           <div className={`absolute inset-0 bg-gradient-to-br ${fallbackGradient}`}>
-            {visible && !tmdbData && (
-              <div className="absolute inset-0 skeleton opacity-30" />
-            )}
             <div className="absolute inset-0 flex items-end p-3">
-              <span className="text-white/70 font-bold text-sm leading-tight line-clamp-2">
-                {item.title}
-              </span>
+              <span className="text-white/70 font-bold text-sm leading-tight line-clamp-2">{item.title}</span>
             </div>
           </div>
         )}
@@ -194,11 +192,6 @@ export default function ContentCard({ item, onSelect, onPlay, index = 0 }: Conte
           )}
         </AnimatePresence>
 
-        {item.type === "movie" && (
-          <div className="absolute top-2 left-2 text-[9px] font-bold tracking-widest text-white/60 bg-black/40 backdrop-blur-sm px-1.5 py-0.5 rounded uppercase">
-            Film
-          </div>
-        )}
       </div>
     </motion.div>
   );
