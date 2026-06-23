@@ -1,9 +1,9 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Plus, Info, Check } from "lucide-react";
+import { Play, Plus, Info, Check, Volume2, VolumeX } from "lucide-react";
 import { ContentItem } from "@/data/content";
 import { useMyList } from "@/app/hooks/useMyList";
 import { useTMDB } from "@/app/hooks/useTMDB";
@@ -12,6 +12,7 @@ interface HeroBannerProps {
   items: ContentItem[];
   onMoreInfo: (item: ContentItem) => void;
   onPlay: (item: ContentItem, trailerKey?: string) => void;
+  modalOpen?: boolean;
 }
 
 function HeroBackdrop({ item }: { item: ContentItem }) {
@@ -30,38 +31,128 @@ function HeroBackdrop({ item }: { item: ContentItem }) {
           sizes="100vw"
         />
       ) : (
-        // Gradient fallback — uses the tailwind class stored in backdropUrl
         <div className={`absolute inset-0 bg-gradient-to-br ${item.backdropUrl}`} />
       )}
     </div>
   );
 }
 
-export default function HeroBanner({ items, onMoreInfo, onPlay }: HeroBannerProps) {
+function sendYTCommand(iframe: HTMLIFrameElement | null, func: string) {
+  if (!iframe?.contentWindow) return;
+  iframe.contentWindow.postMessage(
+    JSON.stringify({ event: "command", func, args: [] }),
+    "*"
+  );
+}
+
+export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: HeroBannerProps) {
   const [current, setCurrent] = useState(0);
+  const [trailerActive, setTrailerActive] = useState(false);
+  const [muted, setMuted] = useState(true);
+  const [origin, setOrigin] = useState("");
+  const iframeRef = useRef<HTMLIFrameElement>(null);
+  const activateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const deactivateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const reducedMotion = useRef(false);
+  const modalOpenRef = useRef(modalOpen);
 
   const { isInList, toggle } = useMyList();
 
   const item = items[current] ?? items[0];
   const { data: tmdbData } = useTMDB(item?.tmdbId, item?.tmdbType, true);
 
+  useEffect(() => {
+    reducedMotion.current = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+    setOrigin(encodeURIComponent(window.location.origin));
+  }, []);
+
+  useEffect(() => {
+    modalOpenRef.current = modalOpen;
+  }, [modalOpen]);
+
+  const stopTrailer = useCallback(() => {
+    sendYTCommand(iframeRef.current, "pauseVideo");
+    setTrailerActive(false);
+  }, []);
+
+  const scheduleTrailer = useCallback(() => {
+    if (activateTimer.current) clearTimeout(activateTimer.current);
+    if (deactivateTimer.current) clearTimeout(deactivateTimer.current);
+    setTrailerActive(false);
+    setMuted(true);
+    if (reducedMotion.current) return;
+
+    activateTimer.current = setTimeout(() => {
+      if (!modalOpenRef.current && !document.hidden) {
+        setTrailerActive(true);
+      }
+      deactivateTimer.current = setTimeout(stopTrailer, 30000);
+    }, 3000);
+  }, [stopTrailer]);
+
   const next = useCallback(() => {
     setCurrent((c) => (c + 1) % items.length);
   }, [items.length]);
+
+  useEffect(() => {
+    scheduleTrailer();
+  }, [current, scheduleTrailer]);
 
   useEffect(() => {
     const t = setInterval(next, 8000);
     return () => clearInterval(t);
   }, [next]);
 
+  // Pause/resume when modal opens or closes
+  useEffect(() => {
+    if (modalOpen) {
+      sendYTCommand(iframeRef.current, "pauseVideo");
+    } else if (trailerActive) {
+      sendYTCommand(iframeRef.current, "playVideo");
+    }
+  }, [modalOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Pause/resume on tab visibility change
+  useEffect(() => {
+    const handleVisibility = () => {
+      if (document.hidden) {
+        sendYTCommand(iframeRef.current, "pauseVideo");
+      } else if (trailerActive && !modalOpenRef.current) {
+        sendYTCommand(iframeRef.current, "playVideo");
+      }
+    };
+    document.addEventListener("visibilitychange", handleVisibility);
+    return () => document.removeEventListener("visibilitychange", handleVisibility);
+  }, [trailerActive]);
+
+  const toggleMute = useCallback(() => {
+    setMuted((prev) => {
+      const next = !prev;
+      sendYTCommand(iframeRef.current, next ? "mute" : "unMute");
+      return next;
+    });
+  }, []);
+
+  useEffect(() => {
+    return () => {
+      if (activateTimer.current) clearTimeout(activateTimer.current);
+      if (deactivateTimer.current) clearTimeout(deactivateTimer.current);
+    };
+  }, []);
+
   if (!item) return null;
 
   const inList = isInList(item.id);
   const trailerKey = tmdbData?.trailerKey ?? item.trailerYouTubeId;
 
+  const iframeSrc =
+    trailerKey && origin
+      ? `https://www.youtube.com/embed/${trailerKey}?autoplay=1&mute=1&loop=1&playlist=${trailerKey}&controls=0&modestbranding=1&rel=0&enablejsapi=1&origin=${origin}&playsinline=1`
+      : null;
+
   return (
     <section className="relative w-full h-[85vh] min-h-[560px] max-h-[900px] overflow-hidden bg-base">
-      {/* Backdrop (crossfade between items) */}
+      {/* Backdrop */}
       <AnimatePresence mode="wait">
         <motion.div
           key={item.id}
@@ -73,6 +164,29 @@ export default function HeroBanner({ items, onMoreInfo, onPlay }: HeroBannerProp
         >
           <HeroBackdrop item={item} />
         </motion.div>
+      </AnimatePresence>
+
+      {/* YouTube trailer — fades over backdrop after 3s, fades out after 30s */}
+      <AnimatePresence>
+        {trailerActive && iframeSrc && (
+          <motion.div
+            key="trailer"
+            className="absolute inset-0 overflow-hidden"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 1.5 }}
+          >
+            <iframe
+              ref={iframeRef}
+              src={iframeSrc}
+              allow="autoplay; encrypted-media"
+              className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 pointer-events-none border-0"
+              style={{ width: "max(100%, 177.78vh)", height: "max(100%, 56.25vw)" }}
+              title={`${item.title} trailer`}
+            />
+          </motion.div>
+        )}
       </AnimatePresence>
 
       {/* Film grain */}
@@ -179,21 +293,41 @@ export default function HeroBanner({ items, onMoreInfo, onPlay }: HeroBannerProp
         </AnimatePresence>
       </div>
 
-      {/* Slide indicators */}
-      <div className="absolute bottom-6 right-6 sm:right-10 z-10 flex items-center gap-2">
-        {items.map((_, i) => (
-          <button
-            key={i}
-            onClick={() => setCurrent(i)}
-            className={`h-0.5 rounded-full transition-all duration-500 ${
-              i === current ? "w-8 bg-white" : "w-3 bg-white/30 hover:bg-white/50"
-            }`}
-            aria-label={`Go to slide ${i + 1}`}
-          />
-        ))}
+      {/* Bottom-right controls: mute toggle + slide indicators */}
+      <div className="absolute bottom-6 right-6 sm:right-10 z-10 flex items-center gap-3">
+        <AnimatePresence>
+          {trailerActive && (
+            <motion.button
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.8 }}
+              transition={{ duration: 0.2 }}
+              onClick={toggleMute}
+              className="w-8 h-8 rounded-full border border-white/30 bg-black/40 backdrop-blur-sm flex items-center justify-center hover:border-white/60 transition-colors"
+              aria-label={muted ? "Unmute trailer" : "Mute trailer"}
+            >
+              {muted ? (
+                <VolumeX className="w-3.5 h-3.5 text-white" />
+              ) : (
+                <Volume2 className="w-3.5 h-3.5 text-white" />
+              )}
+            </motion.button>
+          )}
+        </AnimatePresence>
+
+        <div className="flex items-center gap-2">
+          {items.map((_, i) => (
+            <button
+              key={i}
+              onClick={() => setCurrent(i)}
+              className={`h-0.5 rounded-full transition-all duration-500 ${
+                i === current ? "w-8 bg-white" : "w-3 bg-white/30 hover:bg-white/50"
+              }`}
+              aria-label={`Go to slide ${i + 1}`}
+            />
+          ))}
+        </div>
       </div>
-
-
     </section>
   );
 }

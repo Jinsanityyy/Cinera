@@ -36,7 +36,7 @@ export default function HomePage() {
 
   return (
     <main className="min-h-screen bg-base">
-      <HeroBanner items={heroItems} onMoreInfo={setSelected} onPlay={handlePlay} />
+      <HeroBanner items={heroItems} onMoreInfo={setSelected} onPlay={handlePlay} modalOpen={!!(selected || trailer || video)} />
 
       <section className="relative z-10 -mt-16 sm:-mt-24 space-y-6 pb-20">
         {rows.map((row, i) => (

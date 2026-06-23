@@ -10,30 +10,29 @@ export async function GET(
     return NextResponse.json({ error: "Invalid id" }, { status: 400 });
   }
 
-  const tmdbType =
-    (req.nextUrl.searchParams.get("type") as "movie" | "tv") ?? "tv";
+  const tmdbType = (req.nextUrl.searchParams.get("type") as "movie" | "tv") ?? "tv";
+  const title = req.nextUrl.searchParams.get("title") ?? undefined;
+  const yearRaw = req.nextUrl.searchParams.get("year");
+  const year = yearRaw ? Number(yearRaw) : undefined;
 
   const hasKey = !!process.env.TMDB_API_KEY;
-  console.log(`[TMDB] id=${tmdbId} type=${tmdbType} key_present=${hasKey}`);
-
   if (!hasKey) {
-    console.warn("[TMDB] TMDB_API_KEY is not set — returning empty data");
+    console.warn("[TMDB] TMDB_API_KEY not set");
     return NextResponse.json(
-      { backdropUrl: null, posterUrl: null, trailerKey: null, providers: [], seasons: [], runtime: null },
+      { backdropUrl: null, posterUrl: null, trailerKey: null, providers: [], seasons: [], runtime: null, voteAverage: null, cast: [] },
       { status: 200 }
     );
   }
 
   try {
-    const data = await fetchTMDBData(tmdbId, tmdbType);
-    console.log(`[TMDB] id=${tmdbId} backdrop=${data.backdropUrl ? "ok" : "null"} poster=${data.posterUrl ? "ok" : "null"} trailer=${data.trailerKey ?? "null"} providers=${data.providers.length}`);
+    const data = await fetchTMDBData(tmdbId, tmdbType, { title, year });
     return NextResponse.json(data, {
       headers: { "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=3600" },
     });
   } catch (err) {
     console.error(`[TMDB] id=${tmdbId} fetch failed:`, err);
     return NextResponse.json(
-      { backdropUrl: null, posterUrl: null, trailerKey: null, providers: [], seasons: [], runtime: null },
+      { backdropUrl: null, posterUrl: null, trailerKey: null, providers: [], seasons: [], runtime: null, voteAverage: null, cast: [] },
       { status: 200 }
     );
   }

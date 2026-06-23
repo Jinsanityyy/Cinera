@@ -26,12 +26,20 @@ const GRADIENTS = [
 
 export default function ContentCard({ item, onSelect, onPlay, index = 0 }: ContentCardProps) {
   const [hovered, setHovered] = useState(false);
+  const [showOverlay, setShowOverlay] = useState(false);
   const [imgError, setImgError] = useState(false);
   const [visible, setVisible] = useState(false);
+  const [canHover, setCanHover] = useState(false);
   const cardRef = useRef<HTMLDivElement>(null);
+  const overlayTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const { isInList, toggle } = useMyList();
 
-  // Fetch TMDB poster as soon as the card scrolls into view — works on mobile
+  // Only enable hover on pointer-capable devices
+  useEffect(() => {
+    setCanHover(window.matchMedia("(hover: hover) and (pointer: fine)").matches);
+  }, []);
+
+  // Intersection observer — defer TMDB fetch until card is visible
   useEffect(() => {
     const el = cardRef.current;
     if (!el) return;
@@ -43,24 +51,47 @@ export default function ContentCard({ item, onSelect, onPlay, index = 0 }: Conte
     return () => observer.disconnect();
   }, []);
 
-  const { data: tmdbData } = useTMDB(item.tmdbId, item.tmdbType, visible);
+  const { data: tmdbData, matchPercent: tmdbMatchPercent } = useTMDB(
+    item.tmdbId,
+    item.tmdbType,
+    visible,
+    item.title,
+    item.year,
+  );
+
   const inList = isInList(item.id);
   const posterSrc = tmdbData?.posterUrl ?? null;
   const trailerKey = tmdbData?.trailerKey ?? item.trailerYouTubeId;
   const fallbackGradient = GRADIENTS[index % GRADIENTS.length];
+  const matchPercent = tmdbMatchPercent ?? item.matchPercent;
+
+  const handleHoverStart = () => {
+    if (!canHover) return;
+    setHovered(true);
+    overlayTimer.current = setTimeout(() => setShowOverlay(true), 400);
+  };
+
+  const handleHoverEnd = () => {
+    if (overlayTimer.current) clearTimeout(overlayTimer.current);
+    setHovered(false);
+    setShowOverlay(false);
+  };
 
   return (
     <motion.div
       ref={cardRef}
       className="relative flex-shrink-0 w-[155px] sm:w-[185px] lg:w-[210px] snap-item cursor-pointer group"
-      onHoverStart={() => setHovered(true)}
-      onHoverEnd={() => setHovered(false)}
-      whileHover={{ scale: 1.08, zIndex: 50 }}
+      onHoverStart={handleHoverStart}
+      onHoverEnd={handleHoverEnd}
+      animate={{ scale: hovered ? 1.15 : 1, zIndex: hovered ? 50 : 1 }}
       transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
       style={{ zIndex: hovered ? 50 : 1 }}
       onClick={() => onSelect(item)}
     >
-      <div className="relative rounded-xl overflow-hidden aspect-[2/3] shadow-lg card-glow bg-surface-2">
+      <div
+        className="relative rounded-xl overflow-hidden aspect-[2/3] shadow-lg card-glow bg-surface-2"
+        style={hovered ? { boxShadow: "0 20px 60px rgba(0,0,0,0.7)" } : undefined}
+      >
         {/* Poster */}
         {posterSrc && !imgError ? (
           <Image
@@ -87,15 +118,15 @@ export default function ContentCard({ item, onSelect, onPlay, index = 0 }: Conte
         {/* Bottom gradient */}
         <div className="absolute inset-0 bg-gradient-to-t from-black/70 via-transparent to-transparent opacity-60" />
 
-        {/* Hover overlay */}
+        {/* Hover overlay — shown after 400ms delay, pointer devices only */}
         <AnimatePresence>
-          {hovered && (
+          {showOverlay && (
             <motion.div
               className="absolute inset-0 bg-gradient-to-t from-black via-black/60 to-black/20"
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
-              transition={{ duration: 0.2 }}
+              transition={{ duration: 0.18 }}
             >
               <div className="absolute bottom-0 left-0 right-0 p-3 space-y-2">
                 <p className="text-white font-bold text-xs sm:text-sm leading-tight line-clamp-2">
@@ -103,8 +134,8 @@ export default function ContentCard({ item, onSelect, onPlay, index = 0 }: Conte
                 </p>
 
                 <div className="flex items-center gap-1.5 flex-wrap">
-                  <span className={`text-xs font-bold ${item.matchPercent >= 90 ? "text-green-400" : "text-yellow-400"}`}>
-                    {item.matchPercent}%
+                  <span className={`text-xs font-bold ${matchPercent >= 90 ? "text-green-400" : "text-yellow-400"}`}>
+                    {matchPercent}%
                   </span>
                   <span className="text-[10px] text-white/40 border border-white/20 px-1 rounded">
                     {item.maturityRating}
@@ -114,7 +145,10 @@ export default function ContentCard({ item, onSelect, onPlay, index = 0 }: Conte
 
                 <div className="flex flex-wrap gap-1">
                   {item.genres.slice(0, 2).map((g) => (
-                    <span key={g} className="text-[9px] font-medium text-white/50 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded-full">
+                    <span
+                      key={g}
+                      className="text-[9px] font-medium text-white/50 bg-white/5 border border-white/10 px-1.5 py-0.5 rounded-full"
+                    >
                       {g}
                     </span>
                   ))}

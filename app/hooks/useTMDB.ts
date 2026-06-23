@@ -1,16 +1,18 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import type { TMDBData, TMDBSeason } from "@/lib/tmdb";
+import type { TMDBData, TMDBSeason, TMDBCastMember } from "@/lib/tmdb";
 
-export type { TMDBData, TMDBSeason };
+export type { TMDBData, TMDBSeason, TMDBCastMember };
 
 const cache = new Map<string, TMDBData>();
 
 export function useTMDB(
   tmdbId: number | undefined,
   tmdbType: "movie" | "tv" | undefined,
-  enabled = true
+  enabled = true,
+  title?: string,
+  year?: number,
 ) {
   const [data, setData] = useState<TMDBData | null>(() => {
     if (!tmdbId || !tmdbType) return null;
@@ -29,7 +31,10 @@ export function useTMDB(
     }
     fetchedRef.current = cacheKey;
     setLoading(true);
-    fetch(`/api/tmdb/${tmdbId}?type=${tmdbType}`)
+    const params = new URLSearchParams({ type: tmdbType });
+    if (title) params.set("title", title);
+    if (year) params.set("year", String(year));
+    fetch(`/api/tmdb/${tmdbId}?${params}`)
       .then((r) => r.json())
       .then((d: TMDBData) => {
         cache.set(cacheKey, d);
@@ -37,7 +42,13 @@ export function useTMDB(
       })
       .catch(() => {})
       .finally(() => setLoading(false));
-  }, [tmdbId, tmdbType, enabled]);
+  }, [tmdbId, tmdbType, enabled, title, year]);
 
-  return { data, loading };
+  // Derive match % from real TMDB vote_average, clamped 60–99
+  const matchPercent: number | null =
+    data?.voteAverage != null
+      ? Math.min(99, Math.max(60, Math.round(data.voteAverage * 10)))
+      : null;
+
+  return { data, loading, matchPercent };
 }
