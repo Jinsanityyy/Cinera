@@ -197,7 +197,7 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
     <AnimatePresence>
       {item && (
         <motion.div
-          className="fixed inset-0 z-[100] flex items-end sm:items-center justify-center p-0 sm:p-4"
+          className="fixed inset-0 z-[100] flex items-end lg:items-center justify-center p-0 lg:p-4"
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
@@ -218,7 +218,7 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
             role="dialog"
             aria-modal="true"
             aria-label={current?.title ?? ""}
-            className="relative z-10 w-full sm:max-w-3xl lg:max-w-5xl bg-surface rounded-t-2xl sm:rounded-2xl overflow-hidden max-h-[95vh] sm:max-h-[90vh] flex flex-col"
+            className="relative z-10 w-full sm:max-w-3xl lg:max-w-5xl bg-surface rounded-t-2xl lg:rounded-2xl overflow-hidden max-h-[95vh] flex flex-col"
             initial={{ y: "100%", opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
@@ -229,7 +229,7 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
               <AnimatePresence mode="wait">
                 <motion.div
                   key={current?.id}
-                  className="relative w-full aspect-[16/9] overflow-hidden bg-surface-2"
+                  className="relative w-full aspect-[16/9] max-h-[40vh] overflow-hidden bg-surface-2"
                   initial={{ opacity: 0 }}
                   animate={{ opacity: 1 }}
                   exit={{ opacity: 0 }}
