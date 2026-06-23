@@ -236,7 +236,7 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
             className="space-y-4"
           >
             {/* Badges — hidden on mobile to keep hero compact */}
-            <div className="hidden sm:flex items-center gap-2 flex-wrap">
+            <div className="hidden lg:flex items-center gap-2 flex-wrap">
               {item.featured && (
                 <span className="text-xs font-bold tracking-widest text-accent-purple uppercase">
                   ★ Featured
@@ -261,13 +261,13 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
 
             {/* Tagline — hidden on mobile */}
             {item.tagline && (
-              <p className="hidden sm:block text-base sm:text-lg text-accent-purple-light font-medium italic tracking-wide">
+              <p className="hidden lg:block text-base lg:text-lg text-accent-purple-light font-medium italic tracking-wide">
                 &ldquo;{item.tagline}&rdquo;
               </p>
             )}
 
             {/* Match & genres — hidden on mobile */}
-            <div className="hidden sm:flex items-center gap-3 flex-wrap">
+            <div className="hidden lg:flex items-center gap-3 flex-wrap">
               <span className={`text-sm font-bold ${item.matchPercent >= 90 ? "text-green-400" : "text-yellow-400"}`}>
                 {item.matchPercent}% Match
               </span>
@@ -277,7 +277,7 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
             </div>
 
             {/* Synopsis — hidden on mobile to save space */}
-            <p className="hidden sm:block text-sm sm:text-base text-white/75 leading-relaxed max-w-xl line-clamp-3">
+            <p className="hidden lg:block text-sm lg:text-base text-white/75 leading-relaxed max-w-xl line-clamp-3">
               {item.synopsis}
             </p>
 

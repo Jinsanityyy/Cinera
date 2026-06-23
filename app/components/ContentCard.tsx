@@ -80,7 +80,7 @@ export default function ContentCard({ item, onSelect, onPlay, index = 0 }: Conte
   return (
     <motion.div
       ref={cardRef}
-      className="relative flex-shrink-0 w-[140px] xs:w-[155px] lg:w-[210px] snap-item cursor-pointer group"
+      className="relative flex-shrink-0 w-[38vw] lg:w-[210px] snap-item cursor-pointer group"
       onHoverStart={handleHoverStart}
       onHoverEnd={handleHoverEnd}
       animate={{ scale: hovered ? 1.15 : 1, zIndex: hovered ? 50 : 1 }}
@@ -100,7 +100,7 @@ export default function ContentCard({ item, onSelect, onPlay, index = 0 }: Conte
             alt={item.title}
             fill
             className="object-cover transition-transform duration-700 group-hover:scale-105"
-            sizes="(max-width: 480px) 140px, (max-width: 1024px) 155px, 210px"
+            sizes="(max-width: 1024px) 38vw, 210px"
             onError={() => setImgError(true)}
           />
         ) : visible && !tmdbData ? (

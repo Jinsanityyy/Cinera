@@ -29,7 +29,7 @@ export const PROFILE_EMOJIS = ["🎬", "🍿", "⚡", "🎮", "🎵", "🌟", "�
 
 export function useProfiles() {
   const [profiles, setProfiles] = useState<Profile[]>(DEFAULT_PROFILES);
-  const [activeId, setActiveId] = useState<string | null>(null);
+  const [activeId, setActiveId] = useState<string>(DEFAULT_PROFILES[0].id);
   const [loaded, setLoaded] = useState(false);
 
   useEffect(() => {
@@ -38,6 +38,7 @@ export function useProfiles() {
       if (stored) setProfiles(JSON.parse(stored));
       const active = localStorage.getItem("cinera_active_profile");
       if (active) setActiveId(active);
+      // If no saved active, keep the default first profile (already set above)
     } catch {}
     setLoaded(true);
   }, []);

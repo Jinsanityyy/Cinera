@@ -42,16 +42,16 @@ export default function ContentRow({ label, items, onSelect, onPlay }: ContentRo
       onMouseLeave={() => setRowHovered(false)}
     >
       {/* Row header */}
-      <div className="flex items-center justify-between px-3 sm:px-8 lg:px-16 py-1 mb-3">
-        <h2 className="text-white font-bold text-[15px] sm:text-lg tracking-tight">{label}</h2>
+      <div className="flex items-center justify-between px-3 lg:px-16 py-1 mb-3">
+        <h2 className="text-white font-bold text-[15px] lg:text-lg tracking-tight">{label}</h2>
         {/* "See all" always visible on mobile, hover-only on desktop */}
         <motion.span
           animate={{ opacity: rowHovered ? 1 : 0, x: rowHovered ? 0 : -4 }}
-          className="hidden sm:block text-accent-purple text-xs font-semibold tracking-widest uppercase cursor-pointer hover:text-accent-purple-light transition-colors"
+          className="hidden lg:block text-accent-purple text-xs font-semibold tracking-widest uppercase cursor-pointer hover:text-accent-purple-light transition-colors"
         >
           Explore All →
         </motion.span>
-        <span className="sm:hidden text-accent-purple text-[11px] font-bold tracking-wider uppercase">
+        <span className="lg:hidden text-accent-purple text-[11px] font-bold tracking-wider uppercase">
           See all
         </span>
       </div>
@@ -66,7 +66,7 @@ export default function ContentRow({ label, items, onSelect, onPlay }: ContentRo
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => scroll("left")}
-              className="absolute left-0 top-0 bottom-0 z-20 w-14 sm:w-16 flex items-center justify-center bg-gradient-to-r from-base via-base/80 to-transparent cursor-pointer"
+              className="absolute left-0 top-0 bottom-0 z-20 w-14 lg:w-16 flex items-center justify-center bg-gradient-to-r from-base via-base/80 to-transparent cursor-pointer"
               aria-label="Scroll left"
             >
               <motion.div
@@ -83,7 +83,7 @@ export default function ContentRow({ label, items, onSelect, onPlay }: ContentRo
         <div
           ref={scrollRef}
           onScroll={updateArrows}
-          className="flex gap-3 sm:gap-3 overflow-x-auto scrollbar-hide snap-scroll px-3 sm:px-8 lg:px-16 pb-4 pr-8 sm:pr-0"
+          className="flex gap-3 overflow-x-auto scrollbar-hide snap-scroll px-3 lg:px-16 pb-4 pr-8 lg:pr-0"
           style={{ scrollPaddingLeft: "64px" }}
         >
           {items.map((item, i) => (
@@ -96,7 +96,7 @@ export default function ContentRow({ label, items, onSelect, onPlay }: ContentRo
             />
           ))}
           {/* End padding */}
-          <div className="flex-shrink-0 w-2 sm:w-8 lg:w-14" />
+          <div className="flex-shrink-0 w-2 lg:w-14" />
         </div>
 
         {/* Right arrow */}
@@ -107,7 +107,7 @@ export default function ContentRow({ label, items, onSelect, onPlay }: ContentRo
               animate={{ opacity: 1 }}
               exit={{ opacity: 0 }}
               onClick={() => scroll("right")}
-              className="absolute right-0 top-0 bottom-0 z-20 w-14 sm:w-16 flex items-center justify-center bg-gradient-to-l from-base via-base/80 to-transparent cursor-pointer"
+              className="absolute right-0 top-0 bottom-0 z-20 w-14 lg:w-16 flex items-center justify-center bg-gradient-to-l from-base via-base/80 to-transparent cursor-pointer"
               aria-label="Scroll right"
             >
               <motion.div
