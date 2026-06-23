@@ -1,4 +1,4 @@
-import type { Metadata, Viewport } from "next";
+import type { Metadata } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar";
@@ -10,13 +10,6 @@ const inter = Inter({
   variable: "--font-sans",
   weight: ["300", "400", "500", "600", "700"],
 });
-
-export const viewport: Viewport = {
-  themeColor: "#0a0a0f",
-  width: "device-width",
-  initialScale: 1,
-  viewportFit: "cover",
-};
 
 export const metadata: Metadata = {
   title: {
@@ -53,6 +46,16 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en" className="dark">
+      {/* Explicit viewport — forces correct mobile width in TWA/WebView */}
+      <head>
+        <meta
+          name="viewport"
+          content="width=device-width, initial-scale=1.0, maximum-scale=5.0, viewport-fit=cover"
+        />
+        <meta name="theme-color" content="#0a0a0f" />
+        <meta name="mobile-web-app-capable" content="yes" />
+        <meta name="HandheldFriendly" content="true" />
+      </head>
       <body className={`${inter.variable} bg-base text-text-primary antialiased`}>
         <RegisterSW />
         <Navbar />
