@@ -1,9 +1,11 @@
 "use client";
 
+import Image from "next/image";
 import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Loader2, AlertTriangle, Server, RefreshCw, ChevronDown, ListVideo } from "lucide-react";
+import { X, Loader2, AlertTriangle, Server, RefreshCw, ChevronDown, ListVideo, Play } from "lucide-react";
 import { useVideoSources } from "@/app/hooks/useVideoSources";
+import { useTMDBSeason } from "@/app/hooks/useTMDBSeason";
 import type { Season } from "@/data/content";
 
 // ─── localStorage helpers ─────────────────────────────────────────────────────
@@ -28,6 +30,7 @@ interface VideoPlayerProps {
   season?: number;
   episode?: number;
   seasons?: Season[];
+  tmdbId?: number;
   onClose: () => void;
 }
 
@@ -39,6 +42,7 @@ export default function VideoPlayer({
   season: initialSeason = 1,
   episode: initialEpisode = 1,
   seasons,
+  tmdbId,
   onClose,
 }: VideoPlayerProps) {
   // ── Internal episode/season state ─────────────────────────────────────────
@@ -54,6 +58,13 @@ export default function VideoPlayer({
   }, [contentId, initialSeason, initialEpisode]);
 
   const { sources, loading: sourcesLoading } = useVideoSources(contentId, activeSeason, activeEpisode);
+
+  // Fetch real TMDB episode stills for the picker
+  const { episodes: tmdbEpisodes } = useTMDBSeason(
+    tmdbId ?? null,
+    activeSeason,
+    !!contentId && !!seasons?.length
+  );
 
   // ── Player state ──────────────────────────────────────────────────────────
   const [activeIdx, setActiveIdx]       = useState(0);
@@ -397,36 +408,73 @@ export default function VideoPlayer({
                           </div>
                         )}
 
-                        {/* Episode grid */}
-                        <div className="grid grid-cols-5 sm:grid-cols-8 md:grid-cols-10 gap-1.5 max-h-48 overflow-y-auto">
+                        {/* Episode thumbnail grid */}
+                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-72 overflow-y-auto pr-0.5">
                           {currentSeasonData?.episodes.map((ep) => {
+                            const tmdbEp = tmdbEpisodes.find((t) => t.number === ep.episode);
+                            const thumb = tmdbEp?.stillUrl ?? null;
+                            const epTitle = tmdbEp?.title ?? ep.title;
                             const isActive = ep.episode === activeEpisode && activeSeason === currentSeasonData.number;
                             return (
                               <motion.button
                                 key={ep.id}
                                 onClick={() => selectEpisode(currentSeasonData.number, ep.episode)}
-                                whileHover={{ scale: 1.08 }}
-                                whileTap={{ scale: 0.93 }}
-                                title={ep.title}
+                                whileHover={{ scale: 1.02 }}
+                                whileTap={{ scale: 0.96 }}
+                                title={epTitle}
                                 className={[
-                                  "aspect-square rounded-lg text-xs font-bold transition-all flex items-center justify-center",
-                                  isActive
-                                    ? "bg-accent-purple text-white shadow-lg shadow-accent-purple/30 ring-2 ring-accent-purple/50"
-                                    : "bg-white/10 text-white/60 hover:bg-white/20 hover:text-white",
+                                  "relative text-left rounded-xl overflow-hidden transition-all group",
+                                  isActive ? "ring-2 ring-accent-purple" : "opacity-70 hover:opacity-100",
                                 ].join(" ")}
                               >
-                                {ep.episode}
+                                {/* Thumbnail */}
+                                <div className="relative aspect-video bg-white/8 rounded-xl overflow-hidden">
+                                  {thumb ? (
+                                    <Image
+                                      src={thumb}
+                                      alt={epTitle}
+                                      fill
+                                      className="object-cover"
+                                      sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
+                                    />
+                                  ) : (
+                                    <div className="w-full h-full bg-gradient-to-br from-white/5 to-white/10" />
+                                  )}
+                                  {/* Active overlay */}
+                                  {isActive && (
+                                    <div className="absolute inset-0 bg-accent-purple/20 flex items-center justify-center">
+                                      <div className="w-7 h-7 rounded-full bg-accent-purple/90 flex items-center justify-center shadow-lg">
+                                        <Play className="w-3.5 h-3.5 text-white fill-white ml-0.5" />
+                                      </div>
+                                    </div>
+                                  )}
+                                  {/* Hover overlay */}
+                                  {!isActive && (
+                                    <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
+                                      <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
+                                        <Play className="w-3.5 h-3.5 text-white fill-white ml-0.5" />
+                                      </div>
+                                    </div>
+                                  )}
+                                  {/* Episode badge */}
+                                  <div className={[
+                                    "absolute bottom-1 left-1.5 px-1.5 py-0.5 rounded text-xs font-bold",
+                                    isActive ? "bg-accent-purple text-white" : "bg-black/70 text-white/80",
+                                  ].join(" ")}>
+                                    E{ep.episode}
+                                  </div>
+                                </div>
+                                {/* Episode title */}
+                                <p className={[
+                                  "text-xs mt-1 truncate px-0.5 pb-0.5",
+                                  isActive ? "text-white font-semibold" : "text-white/50",
+                                ].join(" ")}>
+                                  {epTitle}
+                                </p>
                               </motion.button>
                             );
                           })}
                         </div>
-
-                        {/* Episode title */}
-                        {currentSeasonData && (
-                          <p className="text-white/40 text-xs truncate">
-                            {currentSeasonData.episodes.find((e) => e.episode === activeEpisode)?.title ?? ""}
-                          </p>
-                        )}
                       </div>
                     </motion.div>
                   )}

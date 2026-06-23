@@ -16,7 +16,7 @@ export default function BrowsePage() {
   const [typeFilter, setTypeFilter] = useState<"all" | "movie" | "series">("all");
   const [selected, setSelected] = useState<ContentItem | null>(null);
   const [trailer, setTrailer] = useState<{ videoId: string; title: string } | null>(null);
-  const [video, setVideo] = useState<{ contentId: string; title: string; season: number; episode: number; seasons?: Season[] } | null>(null);
+  const [video, setVideo] = useState<{ contentId: string; title: string; season: number; episode: number; seasons?: Season[]; tmdbId?: number } | null>(null);
 
   const handlePlay = (item: ContentItem, trailerKey?: string) => {
     const vid = trailerKey ?? item.trailerYouTubeId;
@@ -25,7 +25,7 @@ export default function BrowsePage() {
 
   const handleWatch = (item: ContentItem, season = 1, episode = 1) => {
     setSelected(null);
-    setVideo({ contentId: item.id, title: item.title, season, episode, seasons: item.seasons });
+    setVideo({ contentId: item.id, title: item.title, season, episode, seasons: item.seasons, tmdbId: item.tmdbId });
   };
 
   const filtered = useMemo(() => {
@@ -196,6 +196,7 @@ export default function BrowsePage() {
         season={video?.season}
         episode={video?.episode}
         seasons={video?.seasons}
+        tmdbId={video?.tmdbId}
         onClose={() => setVideo(null)}
       />
     </main>

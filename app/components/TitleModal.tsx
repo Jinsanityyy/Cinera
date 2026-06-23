@@ -7,6 +7,7 @@ import { X, Play, Plus, Check, Share2, ExternalLink, Tv2, Film, Loader2, Monitor
 import { ContentItem } from "@/data/content";
 import { useMyList } from "@/app/hooks/useMyList";
 import { useTMDB, type TMDBData } from "@/app/hooks/useTMDB";
+import { useTMDBSeason } from "@/app/hooks/useTMDBSeason";
 
 interface TitleModalProps {
   item: ContentItem | null;
@@ -113,6 +114,14 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
     item?.tmdbId,
     item?.tmdbType,
     !!item
+  );
+
+  // Fetch TMDB episode stills for the currently selected season
+  const currentSeasonNumber = item?.seasons?.[selectedSeason]?.number ?? 1;
+  const { episodes: tmdbEpisodes } = useTMDBSeason(
+    item?.tmdbId ?? null,
+    currentSeasonNumber,
+    !!item && item.type === "series" && !!item.seasons?.length
   );
 
   const inList = item ? isInList(item.id) : false;
@@ -379,7 +388,13 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                     </div>
 
                     <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-                      {item.seasons[selectedSeason]?.episodes.map((ep) => (
+                      {item.seasons[selectedSeason]?.episodes.map((ep) => {
+                        const tmdbEp = tmdbEpisodes.find((t) => t.number === ep.episode);
+                        const thumbSrc = tmdbEp?.stillUrl ?? ep.thumbnailUrl;
+                        const epTitle = tmdbEp?.title ?? ep.title;
+                        const epSynopsis = tmdbEp?.synopsis || ep.synopsis;
+                        const epRuntime = tmdbEp?.runtime ?? ep.runtime;
+                        return (
                         <motion.div
                           key={ep.id}
                           whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
@@ -388,8 +403,8 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                         >
                           <div className="relative flex-shrink-0 w-28 sm:w-36 aspect-video rounded-lg overflow-hidden bg-surface-3">
                             <Image
-                              src={ep.thumbnailUrl}
-                              alt={ep.title}
+                              src={thumbSrc}
+                              alt={epTitle}
                               fill
                               className="object-cover"
                               sizes="144px"
@@ -403,14 +418,15 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                           <div className="flex-1 min-w-0 space-y-1">
                             <div className="flex items-baseline justify-between gap-2">
                               <p className="text-white font-semibold text-sm truncate">
-                                {ep.episode}. {ep.title}
+                                {ep.episode}. {epTitle}
                               </p>
-                              <span className="text-white/40 text-xs flex-shrink-0">{ep.runtime}m</span>
+                              <span className="text-white/40 text-xs flex-shrink-0">{epRuntime}m</span>
                             </div>
-                            <p className="text-white/50 text-xs leading-relaxed line-clamp-2">{ep.synopsis}</p>
+                            <p className="text-white/50 text-xs leading-relaxed line-clamp-2">{epSynopsis}</p>
                           </div>
                         </motion.div>
-                      ))}
+                        );
+                      })}
                     </div>
 
                     {/* Legal note for episodes */}

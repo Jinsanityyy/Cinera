@@ -77,6 +77,7 @@ const content: ContentItem[] = [
     matchPercent: 98,
     trailerYouTubeId: "e-HBbz0mvlo",
     creator: "John Griffin",
+    duration: "4 Seasons",
     cast: ["Harold Perrineau", "Catalina Sandino Moreno", "Eion Bailey", "Hannah Cheramy", "Ricky He"],
     featured: true,
     seasons: [
@@ -117,6 +118,19 @@ const content: ContentItem[] = [
           runtime: 56,
           synopsis: "The final mysteries of the town converge toward a shocking and terrifying conclusion.",
           thumbnailUrl: `https://picsum.photos/seed/from-s3e${i + 1}/320/180`,
+        })),
+      },
+      {
+        id: "from-s4",
+        number: 4,
+        year: 2025,
+        episodes: (["Out of Nowhere","Deeper Down","No Way Back","The Hunger","Shadows & Light","Unraveling","The Crossing","What Was Lost","Blood and Soil","Into the Unknown"] as const).map((title, i) => ({
+          id: `from-s4e${i + 1}`,
+          title,
+          episode: i + 1,
+          runtime: 56,
+          synopsis: "Survivors uncover a devastating truth about the town's origins as new arrivals shift the balance of power.",
+          thumbnailUrl: `https://picsum.photos/seed/from-s4e${i + 1}/320/180`,
         })),
       },
     ],
