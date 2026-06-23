@@ -35,10 +35,10 @@ export default function Navbar() {
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
-        <div className="flex items-center justify-between h-14 lg:h-[72px]">
+        <div className="flex items-center justify-between h-16 lg:h-[72px]">
           {/* Wordmark */}
-          <Link href="/" className="flex items-center gap-2 flex-shrink-0 group">
-            <div className="relative w-6 h-6 lg:w-7 lg:h-7 flex-shrink-0">
+          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 group">
+            <div className="relative w-8 h-8 lg:w-7 lg:h-7 flex-shrink-0">
               <svg viewBox="0 0 28 28" fill="none" className="w-full h-full drop-shadow-lg">
                 <defs>
                   <linearGradient id="cineraGrad" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
@@ -50,7 +50,7 @@ export default function Navbar() {
                 <path d="M11 9.5L20 14L11 18.5V9.5Z" fill="white" fillOpacity="0.95" />
               </svg>
             </div>
-            <span className="text-lg lg:text-xl font-black tracking-[0.22em] text-white select-none group-hover:text-white/90 transition-colors">
+            <span className="text-[18px] lg:text-xl font-black tracking-[0.22em] text-white select-none group-hover:text-white/90 transition-colors">
               CINERA
             </span>
           </Link>
@@ -73,31 +73,31 @@ export default function Navbar() {
           </nav>
 
           {/* Right actions */}
-          <div className="flex items-center gap-1 sm:gap-2">
+          <div className="flex items-center gap-1">
             <Link
               href="/browse"
-              className="p-2 rounded-lg text-text-secondary hover:text-white hover:bg-white/10 transition-all duration-200"
+              className="p-3 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200 active:bg-white/15"
               aria-label="Search"
             >
-              <Search className="w-5 h-5" />
+              <Search className="w-[22px] h-[22px] lg:w-5 lg:h-5" />
             </Link>
 
-            <Link href="/profiles" className="flex items-center gap-1.5 group">
+            <Link href="/profiles" className="p-1 flex items-center group">
               <div
-                className={`w-8 h-8 rounded-lg flex-shrink-0 overflow-hidden ${
+                className={`w-10 h-10 lg:w-9 lg:h-9 rounded-xl flex-shrink-0 overflow-hidden text-lg ${
                   activeProfile?.avatarUrl
                     ? ""
                     : activeProfile
-                    ? `bg-gradient-to-br ${activeProfile.color} flex items-center justify-center text-base`
-                    : "bg-gradient-to-br from-accent-purple to-accent-crimson flex items-center justify-center text-xs font-bold text-white"
+                    ? `bg-gradient-to-br ${activeProfile.color} flex items-center justify-center`
+                    : "bg-gradient-to-br from-accent-purple to-accent-crimson flex items-center justify-center text-sm font-bold text-white"
                 }`}
               >
                 {activeProfile?.avatarUrl ? (
                   <Image
                     src={activeProfile.avatarUrl}
                     alt={activeProfile.name}
-                    width={32}
-                    height={32}
+                    width={40}
+                    height={40}
                     className="w-full h-full object-cover"
                   />
                 ) : activeProfile ? (

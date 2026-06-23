@@ -25,7 +25,7 @@ export default function BottomNav() {
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}
     >
-      <div className="flex items-stretch justify-around h-[72px]">
+      <div className="flex items-stretch justify-around h-[76px]">
         {tabs.map(({ href, label, icon: Icon }) => {
           const active = pathname === href;
           return (
@@ -37,21 +37,21 @@ export default function BottomNav() {
               {active && (
                 <motion.div
                   layoutId="bottom-tab-pill"
-                  className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-[3px] rounded-full bg-accent-purple"
+                  className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-[3px] rounded-full bg-accent-purple"
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
-              <motion.div whileTap={{ scale: 0.78 }} transition={{ duration: 0.1 }}>
+              <motion.div whileTap={{ scale: 0.75 }} transition={{ duration: 0.1 }}>
                 <Icon
-                  className={`w-6 h-6 transition-colors duration-200 ${
-                    active ? "text-accent-purple" : "text-white/40"
+                  className={`w-[26px] h-[26px] transition-colors duration-200 ${
+                    active ? "text-accent-purple" : "text-white/45"
                   }`}
-                  strokeWidth={active ? 2.2 : 1.7}
+                  strokeWidth={active ? 2.2 : 1.8}
                 />
               </motion.div>
               <span
-                className={`text-[11px] font-semibold tracking-wide transition-colors duration-200 ${
-                  active ? "text-accent-purple" : "text-white/40"
+                className={`text-[12px] font-semibold tracking-wide transition-colors duration-200 ${
+                  active ? "text-accent-purple" : "text-white/45"
                 }`}
               >
                 {label}
