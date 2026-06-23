@@ -23,7 +23,7 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
   const closeRef = useRef<HTMLButtonElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  const { data: tmdbData, loading: tmdbLoading } = useTMDB(
+  const { data: tmdbData } = useTMDB(
     item?.tmdbId,
     item?.tmdbType,
     !!item
