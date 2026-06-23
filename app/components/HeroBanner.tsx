@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Plus, Info, Check, VolumeX, Volume2 } from "lucide-react";
+import { Play, Plus, Info, Check } from "lucide-react";
 import { ContentItem } from "@/data/content";
 import { useMyList } from "@/app/hooks/useMyList";
 import { useTMDB } from "@/app/hooks/useTMDB";
@@ -39,7 +39,7 @@ function HeroBackdrop({ item }: { item: ContentItem }) {
 
 export default function HeroBanner({ items, onMoreInfo, onPlay }: HeroBannerProps) {
   const [current, setCurrent] = useState(0);
-  const [muted, setMuted] = useState(true);
+
   const { isInList, toggle } = useMyList();
 
   const item = items[current] ?? items[0];
@@ -193,14 +193,7 @@ export default function HeroBanner({ items, onMoreInfo, onPlay }: HeroBannerProp
         ))}
       </div>
 
-      {/* Mute toggle */}
-      <button
-        onClick={() => setMuted(!muted)}
-        className="absolute bottom-6 right-24 sm:right-32 z-10 p-2 rounded-full border border-white/20 text-white/60 hover:text-white hover:border-white/50 transition-all"
-        aria-label={muted ? "Unmute" : "Mute"}
-      >
-        {muted ? <VolumeX className="w-4 h-4" /> : <Volume2 className="w-4 h-4" />}
-      </button>
+
     </section>
   );
 }
