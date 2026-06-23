@@ -3,7 +3,7 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Play, Plus, Check, Share2, ExternalLink, Film, Loader2, Clock } from "lucide-react";
+import { X, Play, Plus, Check, Share2, Film, Loader2, Clock, MonitorPlay } from "lucide-react";
 import { ContentItem } from "@/data/content";
 import { useMyList } from "@/app/hooks/useMyList";
 import { useTMDB } from "@/app/hooks/useTMDB";
@@ -79,19 +79,6 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
   const trailerKey = tmdbData?.trailerKey ?? item?.trailerYouTubeId;
   const backdropSrc = tmdbData?.backdropUrl ?? null;
 
-  // ── Watch Now: pick the best legal streaming destination ──────────────────
-  const flatrateProvider = tmdbData?.providers.find((p) => p.type === "flatrate");
-  const anyProvider      = flatrateProvider ?? tmdbData?.providers[0] ?? null;
-  const justWatchUrl     = `https://www.justwatch.com/us/search?q=${encodeURIComponent(item?.title ?? "")}`;
-  const watchUrl         = anyProvider?.link || justWatchUrl;
-
-  const watchLabel = tmdbLoading
-    ? "Watch Now"
-    : flatrateProvider
-      ? `Watch on ${flatrateProvider.name}`
-      : anyProvider
-        ? "Rent / Buy"
-        : "Find Where to Watch";
 
   return (
     <AnimatePresence>
@@ -209,32 +196,16 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
 
                   {/* Buttons */}
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    {/* PRIMARY: Watch Now → legal streaming provider */}
-                    <motion.a
-                      href={watchUrl}
-                      target="_blank"
-                      rel="noopener noreferrer"
+                    {/* PRIMARY: Watch Now → internal multi-server player */}
+                    <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      className="flex items-center gap-2 px-5 py-2.5 bg-white text-black font-bold text-sm rounded-lg hover:bg-white/90 transition-all shadow-lg"
+                      onClick={() => onWatch(item)}
+                      className="flex items-center gap-2 px-5 py-2.5 bg-accent-purple text-white font-bold text-sm rounded-lg shadow-lg shadow-accent-purple/25 hover:bg-accent-purple/90 transition-colors"
                     >
-                      {tmdbLoading ? (
-                        <Loader2 className="w-4 h-4 animate-spin text-black/50" />
-                      ) : flatrateProvider ? (
-                        <div className="relative w-5 h-5 rounded-[3px] overflow-hidden flex-shrink-0">
-                          <Image
-                            src={flatrateProvider.logoUrl}
-                            alt={flatrateProvider.name}
-                            fill
-                            className="object-cover"
-                            sizes="20px"
-                          />
-                        </div>
-                      ) : (
-                        <ExternalLink className="w-4 h-4" />
-                      )}
-                      {watchLabel}
-                    </motion.a>
+                      <MonitorPlay className="w-4 h-4" />
+                      Watch Now
+                    </motion.button>
 
                     {/* SECONDARY: Trailer */}
                     {trailerKey ? (
@@ -278,25 +249,25 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                 </div>
 
                 {/* ── Synopsis ── */}
-                <p className="text-zinc-200 leading-relaxed text-sm sm:text-base">{item.synopsis}</p>
+                <p className="text-white leading-relaxed text-sm sm:text-base">{item.synopsis}</p>
 
                 {/* ── Details ── */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                   {item.cast && (
                     <div>
                       <span className="text-zinc-500 font-medium">Cast · </span>
-                      <span className="text-zinc-200">{item.cast.join(", ")}</span>
+                      <span className="text-white">{item.cast.join(", ")}</span>
                     </div>
                   )}
                   {item.creator && (
                     <div>
                       <span className="text-zinc-500 font-medium">Creator · </span>
-                      <span className="text-zinc-200">{item.creator}</span>
+                      <span className="text-white">{item.creator}</span>
                     </div>
                   )}
                   <div>
                     <span className="text-zinc-500 font-medium">Genres · </span>
-                    <span className="text-zinc-200">{item.genres.join(", ")}</span>
+                    <span className="text-white">{item.genres.join(", ")}</span>
                   </div>
                   {item.tagline && (
                     <div className="sm:col-span-2">
@@ -376,7 +347,7 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                                   <span className="text-zinc-400 text-xs flex-shrink-0">{ep.runtime}m</span>
                                 )}
                               </div>
-                              <p className="text-zinc-300 text-xs leading-relaxed line-clamp-2">{ep.synopsis}</p>
+                              <p className="text-white/90 text-xs leading-relaxed line-clamp-2">{ep.synopsis}</p>
                             </div>
                           </motion.div>
                         ))}
