@@ -42,7 +42,7 @@ export default function ContentRow({ label, items, onSelect, onPlay }: ContentRo
       onMouseLeave={() => setRowHovered(false)}
     >
       {/* Row header */}
-      <div className="flex items-center gap-3 px-6 sm:px-10 lg:px-16 mb-4">
+      <div className="flex items-center gap-3 px-3 sm:px-8 lg:px-16 mb-3">
         <h2 className="text-white font-bold text-base sm:text-lg tracking-tight">{label}</h2>
         <motion.span
           animate={{ opacity: rowHovered ? 1 : 0, x: rowHovered ? 0 : -4 }}
@@ -79,7 +79,7 @@ export default function ContentRow({ label, items, onSelect, onPlay }: ContentRo
         <div
           ref={scrollRef}
           onScroll={updateArrows}
-          className="flex gap-3 overflow-x-auto scrollbar-hide snap-scroll px-6 sm:px-10 lg:px-16 pb-4"
+          className="flex gap-3 overflow-x-auto scrollbar-hide snap-scroll px-3 sm:px-8 lg:px-16 pb-4"
           style={{ scrollPaddingLeft: "64px" }}
         >
           {items.map((item, i) => (

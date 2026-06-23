@@ -25,33 +25,33 @@ export default function BottomNav() {
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}
     >
-      <div className="flex items-stretch justify-around h-16">
+      <div className="flex items-stretch justify-around h-[72px]">
         {tabs.map(({ href, label, icon: Icon }) => {
           const active = pathname === href;
           return (
             <Link
               key={href}
               href={href}
-              className="relative flex flex-col items-center justify-center gap-1 flex-1 min-h-full"
+              className="relative flex flex-col items-center justify-center gap-1.5 flex-1 min-h-full pt-1"
             >
               {active && (
                 <motion.div
                   layoutId="bottom-tab-pill"
-                  className="absolute top-0 left-1/2 -translate-x-1/2 w-8 h-0.5 rounded-full bg-accent-purple"
+                  className="absolute top-0 left-1/2 -translate-x-1/2 w-10 h-[3px] rounded-full bg-accent-purple"
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
-              <motion.div whileTap={{ scale: 0.8 }} transition={{ duration: 0.1 }}>
+              <motion.div whileTap={{ scale: 0.78 }} transition={{ duration: 0.1 }}>
                 <Icon
-                  className={`w-[22px] h-[22px] transition-colors duration-200 ${
-                    active ? "text-accent-purple" : "text-white/35"
+                  className={`w-6 h-6 transition-colors duration-200 ${
+                    active ? "text-accent-purple" : "text-white/40"
                   }`}
-                  strokeWidth={active ? 2.2 : 1.8}
+                  strokeWidth={active ? 2.2 : 1.7}
                 />
               </motion.div>
               <span
-                className={`text-[10px] font-medium tracking-wide transition-colors duration-200 ${
-                  active ? "text-accent-purple" : "text-white/35"
+                className={`text-[11px] font-semibold tracking-wide transition-colors duration-200 ${
+                  active ? "text-accent-purple" : "text-white/40"
                 }`}
               >
                 {label}
