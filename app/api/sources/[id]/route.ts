@@ -10,17 +10,18 @@ function buildSources(
 ): VideoSource[] {
   if (tmdbType === "movie") {
     return [
-      { name: "Server 1", url: `https://vidsrc.to/embed/movie/${tmdbId}`,           type: "embed" },
-      { name: "Server 2", url: `https://vidsrc.me/embed/movie?tmdb=${tmdbId}`,      type: "embed" },
-      { name: "Server 3", url: `https://www.2embed.cc/embed/${tmdbId}`,             type: "embed" },
-      { name: "Server 4", url: `https://embed.su/embed/movie/${tmdbId}`,            type: "embed" },
+      // ad-light / no-popup providers first
+      { name: "Server 1", url: `https://vidlink.pro/movie/${tmdbId}?autoplay=true`,                     type: "embed" },
+      { name: "Server 2", url: `https://player.videasy.net/movie/${tmdbId}`,                            type: "embed" },
+      { name: "Server 3", url: `https://vidsrc.xyz/embed/movie/${tmdbId}`,                              type: "embed" },
+      { name: "Server 4", url: `https://autoembed.cc/movie/${tmdbId}`,                                  type: "embed" },
     ];
   }
   return [
-    { name: "Server 1", url: `https://vidsrc.to/embed/tv/${tmdbId}/${season}/${episode}`,                       type: "embed" },
-    { name: "Server 2", url: `https://vidsrc.me/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`,   type: "embed" },
-    { name: "Server 3", url: `https://www.2embed.cc/embedtv/${tmdbId}&s=${season}&e=${episode}`,                type: "embed" },
-    { name: "Server 4", url: `https://embed.su/embed/tv/${tmdbId}/${season}/${episode}`,                        type: "embed" },
+    { name: "Server 1", url: `https://vidlink.pro/tv/${tmdbId}/${season}/${episode}?autoplay=true`,     type: "embed" },
+    { name: "Server 2", url: `https://player.videasy.net/tv/${tmdbId}/${season}/${episode}`,            type: "embed" },
+    { name: "Server 3", url: `https://vidsrc.xyz/embed/tv/${tmdbId}/${season}/${episode}`,              type: "embed" },
+    { name: "Server 4", url: `https://autoembed.cc/tv/${tmdbId}/${season}/${episode}`,                  type: "embed" },
   ];
 }
 
