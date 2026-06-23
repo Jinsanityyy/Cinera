@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Search, Bell, ChevronDown, Menu, X } from "lucide-react";
+import { Search, ChevronDown, Menu, X } from "lucide-react";
 import Image from "next/image";
 import { useProfiles } from "@/app/hooks/useProfiles";
 
@@ -87,15 +87,7 @@ export default function Navbar() {
                 <Search className="w-5 h-5" />
               </Link>
 
-              <button
-                className="hidden sm:flex p-2 rounded-lg text-text-secondary hover:text-white hover:bg-white/10 transition-all duration-200 relative"
-                aria-label="Notifications"
-              >
-                <Bell className="w-5 h-5" />
-                <span className="absolute top-1.5 right-1.5 w-2 h-2 bg-accent-crimson rounded-full" />
-              </button>
-
-              <Link href="/profiles" className="flex items-center gap-1.5 group">
+<Link href="/profiles" className="flex items-center gap-1.5 group">
                 <div className={`w-8 h-8 rounded-lg flex-shrink-0 overflow-hidden ${
                   activeProfile?.avatarUrl
                     ? ""
