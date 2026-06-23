@@ -218,7 +218,7 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
             role="dialog"
             aria-modal="true"
             aria-label={current?.title ?? ""}
-            className="relative z-10 w-full sm:max-w-3xl lg:max-w-4xl bg-surface rounded-t-2xl sm:rounded-2xl overflow-hidden max-h-[95vh] sm:max-h-[90vh] flex flex-col"
+            className="relative z-10 w-full sm:max-w-3xl lg:max-w-5xl bg-surface rounded-t-2xl sm:rounded-2xl overflow-hidden max-h-[95vh] sm:max-h-[90vh] flex flex-col"
             initial={{ y: "100%", opacity: 0 }}
             animate={{ y: 0, opacity: 1 }}
             exit={{ y: "100%", opacity: 0 }}
@@ -452,7 +452,7 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                       </div>
 
                       <div className="rounded-xl bg-zinc-900/80 overflow-hidden border border-white/5">
-                        <div className="max-h-72 overflow-y-auto">
+                        <div className="max-h-72 lg:max-h-[420px] overflow-y-auto">
                           {epLoading ? (
                             <div className="flex items-center gap-3 py-8 px-4 text-zinc-500">
                               <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />

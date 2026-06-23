@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Plus, Info, Check } from "lucide-react";
+import { Play, Plus, Info, Check, List } from "lucide-react";
 import { ContentItem } from "@/data/content";
 import { useMyList } from "@/app/hooks/useMyList";
 import { useTMDB } from "@/app/hooks/useTMDB";
@@ -295,6 +295,18 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
                 {inList ? <Check className="w-4 h-4 sm:w-5 sm:h-5" /> : <Plus className="w-4 h-4 sm:w-5 sm:h-5" />}
                 <span className="hidden xs:inline">{inList ? "In My List" : "My List"}</span>
               </motion.button>
+
+              {item.type === "series" && (
+                <motion.button
+                  whileHover={{ scale: 1.04 }}
+                  whileTap={{ scale: 0.97 }}
+                  onClick={() => onMoreInfo(item)}
+                  className="flex items-center gap-2 px-4 py-2.5 sm:px-7 sm:py-3 bg-accent-purple text-white font-bold text-sm rounded-lg hover:bg-accent-purple/90 transition-colors shadow-lg shadow-accent-purple/25"
+                >
+                  <List className="w-4 h-4 sm:w-5 sm:h-5" />
+                  <span className="hidden xs:inline">Episodes</span>
+                </motion.button>
+              )}
 
               <motion.button
                 whileHover={{ scale: 1.04 }}
