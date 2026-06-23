@@ -1,12 +1,55 @@
 "use client";
 
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
-import { Plus, Check, X, Trash2 } from "lucide-react";
+import { Plus, Check, X, Trash2, Camera } from "lucide-react";
+import Image from "next/image";
 import { useProfiles, PROFILE_COLORS, PROFILE_EMOJIS, type Profile } from "@/app/hooks/useProfiles";
 
 type EditState = { mode: "edit"; profile: Profile } | { mode: "add" } | null;
+
+function cropAndResizeImage(file: File, size = 200): Promise<string> {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const img = new window.Image();
+      img.onload = () => {
+        const canvas = document.createElement("canvas");
+        canvas.width = size;
+        canvas.height = size;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) { reject(new Error("canvas")); return; }
+        const side = Math.min(img.width, img.height);
+        const sx = (img.width - side) / 2;
+        const sy = (img.height - side) / 2;
+        ctx.drawImage(img, sx, sy, side, side, 0, 0, size, size);
+        resolve(canvas.toDataURL("image/jpeg", 0.82));
+      };
+      img.onerror = reject;
+      img.src = e.target?.result as string;
+    };
+    reader.onerror = reject;
+    reader.readAsDataURL(file);
+  });
+}
+
+function AvatarPreview({ avatarUrl, emoji, color, size = "w-24 h-24" }: {
+  avatarUrl?: string; emoji: string; color: string; size?: string;
+}) {
+  if (avatarUrl) {
+    return (
+      <div className={`${size} rounded-xl overflow-hidden flex-shrink-0`}>
+        <Image src={avatarUrl} alt="avatar" width={200} height={200} className="w-full h-full object-cover" />
+      </div>
+    );
+  }
+  return (
+    <div className={`${size} rounded-xl bg-gradient-to-br ${color} flex items-center justify-center text-4xl flex-shrink-0`}>
+      {emoji}
+    </div>
+  );
+}
 
 function ProfileFormModal({
   state,
@@ -25,11 +68,26 @@ function ProfileFormModal({
   const [name, setName] = useState(initial?.name ?? "");
   const [emoji, setEmoji] = useState(initial?.emoji ?? PROFILE_EMOJIS[0]);
   const [color, setColor] = useState(initial?.color ?? PROFILE_COLORS[0]);
+  const [avatarUrl, setAvatarUrl] = useState<string | undefined>(initial?.avatarUrl);
+  const [uploading, setUploading] = useState(false);
+  const fileRef = useRef<HTMLInputElement>(null);
+
+  const handleFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+    setUploading(true);
+    try {
+      const data = await cropAndResizeImage(file);
+      setAvatarUrl(data);
+    } catch {}
+    setUploading(false);
+    e.target.value = "";
+  };
 
   const handleSave = () => {
     const trimmed = name.trim();
     if (!trimmed) return;
-    onSave({ name: trimmed, emoji, color });
+    onSave({ name: trimmed, emoji, color, avatarUrl });
     onClose();
   };
 
@@ -58,11 +116,38 @@ function ProfileFormModal({
           </button>
         </div>
 
-        {/* Preview */}
-        <div className="flex justify-center">
-          <div className={`w-24 h-24 rounded-xl bg-gradient-to-br ${color} flex items-center justify-center text-4xl shadow-lg`}>
-            {emoji}
+        {/* Avatar preview + upload */}
+        <div className="flex flex-col items-center gap-3">
+          <div className="relative group">
+            <AvatarPreview avatarUrl={avatarUrl} emoji={emoji} color={color} size="w-24 h-24" />
+            {/* Upload overlay */}
+            <button
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              className="absolute inset-0 rounded-xl bg-black/0 group-hover:bg-black/55 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-all"
+            >
+              <Camera className="w-6 h-6 text-white drop-shadow" />
+            </button>
           </div>
+          <div className="flex items-center gap-2">
+            <button
+              onClick={() => fileRef.current?.click()}
+              disabled={uploading}
+              className="flex items-center gap-1.5 text-xs font-semibold text-accent-purple-light hover:text-white transition-colors"
+            >
+              <Camera className="w-3.5 h-3.5" />
+              {uploading ? "Uploading…" : "Upload Photo"}
+            </button>
+            {avatarUrl && (
+              <button
+                onClick={() => setAvatarUrl(undefined)}
+                className="text-xs text-zinc-500 hover:text-red-400 transition-colors"
+              >
+                Remove
+              </button>
+            )}
+          </div>
+          <input ref={fileRef} type="file" accept="image/*" className="hidden" onChange={handleFile} />
         </div>
 
         {/* Name */}
@@ -74,33 +159,37 @@ function ProfileFormModal({
             onKeyDown={e => e.key === "Enter" && handleSave()}
             maxLength={20}
             placeholder="Profile name"
-            className="w-full bg-surface-2 border border-border-subtle rounded-lg px-3 py-2.5 text-white text-sm placeholder:text-zinc-600 focus:outline-none focus:border-accent-purple transition-colors"
+            className="w-full bg-surface-2 border border-border-subtle rounded-lg px-3 py-2.5 text-sm placeholder:text-zinc-600 focus:outline-none focus:border-accent-purple transition-colors"
             style={{ color: "white" }}
             autoFocus
           />
         </div>
 
-        {/* Emoji picker */}
-        <div className="space-y-1.5">
-          <label style={{ color: "#a1a1aa" }} className="text-xs font-semibold uppercase tracking-wider">Avatar</label>
-          <div className="flex flex-wrap gap-2">
-            {PROFILE_EMOJIS.map(e => (
-              <button
-                key={e}
-                onClick={() => setEmoji(e)}
-                className={`w-9 h-9 rounded-lg text-xl flex items-center justify-center transition-all ${
-                  emoji === e ? "bg-accent-purple ring-2 ring-accent-purple-light scale-110" : "bg-surface-2 hover:bg-surface-3"
-                }`}
-              >
-                {e}
-              </button>
-            ))}
+        {/* Emoji picker — only shown when no custom photo */}
+        {!avatarUrl && (
+          <div className="space-y-1.5">
+            <label style={{ color: "#a1a1aa" }} className="text-xs font-semibold uppercase tracking-wider">Avatar Emoji</label>
+            <div className="flex flex-wrap gap-2">
+              {PROFILE_EMOJIS.map(e => (
+                <button
+                  key={e}
+                  onClick={() => setEmoji(e)}
+                  className={`w-9 h-9 rounded-lg text-xl flex items-center justify-center transition-all ${
+                    emoji === e ? "bg-accent-purple ring-2 ring-accent-purple-light scale-110" : "bg-surface-2 hover:bg-surface-3"
+                  }`}
+                >
+                  {e}
+                </button>
+              ))}
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Color picker */}
         <div className="space-y-1.5">
-          <label style={{ color: "#a1a1aa" }} className="text-xs font-semibold uppercase tracking-wider">Color</label>
+          <label style={{ color: "#a1a1aa" }} className="text-xs font-semibold uppercase tracking-wider">
+            {avatarUrl ? "Background Color" : "Color"}
+          </label>
           <div className="flex flex-wrap gap-2">
             {PROFILE_COLORS.map(c => (
               <button
@@ -202,16 +291,19 @@ export default function ProfilesPage() {
               aria-label={`${editing ? "Edit" : "Select"} profile ${profile.name}`}
             >
               <div className="relative">
-                <div
-                  className={`w-28 h-28 sm:w-36 sm:h-36 rounded-xl bg-gradient-to-br ${profile.color} flex items-center justify-center text-4xl sm:text-5xl shadow-xl transition-all duration-300 ${
-                    selected === profile.id
-                      ? "ring-4 ring-white scale-105"
-                      : activeId === profile.id && !editing
-                      ? "ring-2 ring-accent-purple"
-                      : "group-hover:ring-2 group-hover:ring-white/50"
-                  }`}
-                >
-                  {profile.emoji}
+                <div className={`w-28 h-28 sm:w-36 sm:h-36 rounded-xl shadow-xl transition-all duration-300 ${
+                  selected === profile.id
+                    ? "ring-4 ring-white scale-105"
+                    : activeId === profile.id && !editing
+                    ? "ring-2 ring-accent-purple"
+                    : "group-hover:ring-2 group-hover:ring-white/50"
+                }`}>
+                  <AvatarPreview
+                    avatarUrl={profile.avatarUrl}
+                    emoji={profile.emoji}
+                    color={profile.color}
+                    size="w-full h-full"
+                  />
                 </div>
 
                 {/* Edit overlay */}
@@ -242,8 +334,10 @@ export default function ProfilesPage() {
                 </AnimatePresence>
               </div>
 
-              <span style={{ color: activeId === profile.id && !editing ? "#a78bfa" : undefined }}
-                className="text-white/75 font-semibold text-base group-hover:text-white transition-colors">
+              <span
+                style={{ color: activeId === profile.id && !editing ? "#a78bfa" : undefined }}
+                className="text-white/75 font-semibold text-base group-hover:text-white transition-colors"
+              >
                 {profile.name}
               </span>
             </motion.button>

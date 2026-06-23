@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Bell, ChevronDown, Menu, X } from "lucide-react";
+import Image from "next/image";
 import { useProfiles } from "@/app/hooks/useProfiles";
 
 const navLinks = [
@@ -95,12 +96,18 @@ export default function Navbar() {
               </button>
 
               <Link href="/profiles" className="flex items-center gap-1.5 group">
-                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold text-white flex-shrink-0 ${
-                  activeProfile
-                    ? `bg-gradient-to-br ${activeProfile.color}`
-                    : "bg-gradient-to-br from-accent-purple to-accent-crimson"
+                <div className={`w-8 h-8 rounded-lg flex-shrink-0 overflow-hidden ${
+                  activeProfile?.avatarUrl
+                    ? ""
+                    : activeProfile
+                    ? `bg-gradient-to-br ${activeProfile.color} flex items-center justify-center text-base`
+                    : "bg-gradient-to-br from-accent-purple to-accent-crimson flex items-center justify-center text-xs font-bold text-white"
                 }`}>
-                  {activeProfile ? activeProfile.emoji : "?"}
+                  {activeProfile?.avatarUrl ? (
+                    <Image src={activeProfile.avatarUrl} alt={activeProfile.name} width={32} height={32} className="w-full h-full object-cover" />
+                  ) : activeProfile ? (
+                    activeProfile.emoji
+                  ) : "?"}
                 </div>
                 <ChevronDown className="hidden sm:block w-4 h-4 text-text-secondary group-hover:text-white transition-colors" />
               </Link>

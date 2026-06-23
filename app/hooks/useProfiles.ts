@@ -7,6 +7,7 @@ export type Profile = {
   name: string;
   emoji: string;
   color: string;
+  avatarUrl?: string;
 };
 
 const DEFAULT_PROFILES: Profile[] = [
