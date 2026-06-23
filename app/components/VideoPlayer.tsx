@@ -34,13 +34,16 @@ type Status = "loading" | "ready" | "all-failed";
 interface VideoPlayerProps {
   contentId: string | null;
   title: string;
+  season?: number;
+  episode?: number;
   onClose: () => void;
 }
 
 // ─── Component ────────────────────────────────────────────────────────────────
 
-export default function VideoPlayer({ contentId, title, onClose }: VideoPlayerProps) {
-  const { sources, loading: sourcesLoading } = useVideoSources(contentId);
+export default function VideoPlayer({ contentId, title, season = 1, episode = 1, onClose }: VideoPlayerProps) {
+  const { sources, loading: sourcesLoading } = useVideoSources(contentId, season, episode);
+  const episodeLabel = season > 0 && episode > 0 ? ` · S${season} E${episode}` : "";
 
   const [activeIdx, setActiveIdx] = useState(0);
   const [status, setStatus] = useState<Status>("loading");
@@ -229,7 +232,7 @@ export default function VideoPlayer({ contentId, title, onClose }: VideoPlayerPr
             >
               <div className="min-w-0">
                 <p className="text-white font-bold text-base sm:text-lg tracking-tight truncate">
-                  {title}
+                  {title}{episodeLabel}
                 </p>
 
                 {/* Server switcher */}

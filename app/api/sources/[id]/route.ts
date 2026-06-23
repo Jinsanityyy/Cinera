@@ -2,44 +2,43 @@ import { NextRequest, NextResponse } from "next/server";
 import { allContent } from "@/data/content";
 import type { VideoSource } from "@/data/content";
 
-// ─── Per-title registry ───────────────────────────────────────────────────────
-// Add real CDN/server URLs here keyed by content ID.
-// Any title NOT listed here falls back to its YouTube trailer as the embed source.
-//
-// Example:
-// "from-mgm": [
-//   { name: "Server 1", url: "https://your-cdn.com/from/s1e1.m3u8", type: "hls" },
-//   { name: "Server 2", url: "https://backup.com/from/s1e1.mp4",    type: "mp4"  },
-// ],
-
-const registry: Record<string, VideoSource[]> = {};
+function buildSources(
+  tmdbId: number,
+  tmdbType: "movie" | "tv",
+  season: number,
+  episode: number
+): VideoSource[] {
+  if (tmdbType === "movie") {
+    return [
+      { name: "Server 1", url: `https://vidsrc.to/embed/movie/${tmdbId}`,           type: "embed" },
+      { name: "Server 2", url: `https://vidsrc.me/embed/movie?tmdb=${tmdbId}`,      type: "embed" },
+      { name: "Server 3", url: `https://www.2embed.cc/embed/${tmdbId}`,             type: "embed" },
+      { name: "Server 4", url: `https://embed.su/embed/movie/${tmdbId}`,            type: "embed" },
+    ];
+  }
+  return [
+    { name: "Server 1", url: `https://vidsrc.to/embed/tv/${tmdbId}/${season}/${episode}`,                       type: "embed" },
+    { name: "Server 2", url: `https://vidsrc.me/embed/tv?tmdb=${tmdbId}&season=${season}&episode=${episode}`,   type: "embed" },
+    { name: "Server 3", url: `https://www.2embed.cc/embedtv/${tmdbId}&s=${season}&e=${episode}`,                type: "embed" },
+    { name: "Server 4", url: `https://embed.su/embed/tv/${tmdbId}/${season}/${episode}`,                        type: "embed" },
+  ];
+}
 
 export async function GET(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: { id: string } }
 ) {
-  // Use registry entry if available
-  if (registry[params.id]) {
-    return NextResponse.json(
-      { sources: registry[params.id] },
-      { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=300" } }
-    );
+  const season  = Math.max(1, Number(req.nextUrl.searchParams.get("season")  ?? "1"));
+  const episode = Math.max(1, Number(req.nextUrl.searchParams.get("episode") ?? "1"));
+
+  const item = allContent.find((c) => c.id === params.id);
+  if (!item) {
+    return NextResponse.json({ sources: [] }, { status: 404 });
   }
 
-  // Fall back to the title's own YouTube trailer as embed source
-  const item = allContent.find((c) => c.id === params.id);
-  const trailerSources: VideoSource[] = item?.trailerYouTubeId
-    ? [
-        {
-          name: "Server 1",
-          url: `https://www.youtube.com/embed/${item.trailerYouTubeId}?autoplay=1&rel=0`,
-          type: "embed",
-        },
-      ]
-    : [];
-
+  const sources = buildSources(item.tmdbId, item.tmdbType, season, episode);
   return NextResponse.json(
-    { sources: trailerSources },
+    { sources },
     { headers: { "Cache-Control": "public, s-maxage=3600, stale-while-revalidate=300" } }
   );
 }

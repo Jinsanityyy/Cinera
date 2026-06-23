@@ -12,7 +12,7 @@ interface TitleModalProps {
   item: ContentItem | null;
   onClose: () => void;
   onPlay: (item: ContentItem, trailerKey?: string) => void;
-  onWatch: (item: ContentItem) => void;
+  onWatch: (item: ContentItem, season?: number, episode?: number) => void;
 }
 
 // ─── Where to Watch section ──────────────────────────────────────────────────
@@ -384,6 +384,7 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                           key={ep.id}
                           whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
                           className="flex gap-3 rounded-xl p-3 cursor-pointer group/ep"
+                          onClick={() => onWatch(item, item.seasons![selectedSeason].number, ep.episode)}
                         >
                           <div className="relative flex-shrink-0 w-28 sm:w-36 aspect-video rounded-lg overflow-hidden bg-surface-3">
                             <Image
