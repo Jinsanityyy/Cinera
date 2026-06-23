@@ -181,7 +181,7 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
         const last = focusable[focusable.length - 1];
         if (e.shiftKey ? document.activeElement === first : document.activeElement === last) {
           e.preventDefault();
-          (e.shiftKey ? last : first).focus();
+          (e.shiftKey ? last : first).focus({ preventScroll: true });
         }
       }
     };
@@ -292,7 +292,7 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
             </div>
 
             {/* ── Scrollable body ── */}
-            <div className="overflow-y-auto flex-1 bg-surface">
+            <div className="overflow-y-auto overscroll-y-contain flex-1 bg-surface">
               <AnimatePresence mode="wait">
                 <motion.div
                   key={current?.id}
