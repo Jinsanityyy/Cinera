@@ -3,10 +3,10 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Play, Plus, Check, Share2, ExternalLink, Tv2, Film, Loader2, MonitorPlay, Clock } from "lucide-react";
+import { X, Play, Plus, Check, Share2, ExternalLink, Film, Loader2, Clock } from "lucide-react";
 import { ContentItem } from "@/data/content";
 import { useMyList } from "@/app/hooks/useMyList";
-import { useTMDB, type TMDBData } from "@/app/hooks/useTMDB";
+import { useTMDB } from "@/app/hooks/useTMDB";
 import { useTMDBSeason } from "@/app/hooks/useTMDBSeason";
 import type { TMDBSeason } from "@/lib/tmdb";
 
@@ -17,107 +17,19 @@ interface TitleModalProps {
   onWatch: (item: ContentItem, season?: number, episode?: number) => void;
 }
 
-// ─── Where to Watch section ──────────────────────────────────────────────────
-
-function WatchProviders({ tmdbData, loading }: { tmdbData: TMDBData | null; loading: boolean }) {
-  const streaming = tmdbData?.providers.filter((p) => p.type === "flatrate") ?? [];
-  const rent = tmdbData?.providers.filter((p) => p.type === "rent") ?? [];
-  const buy = tmdbData?.providers.filter((p) => p.type === "buy") ?? [];
-  const hasAny = streaming.length > 0 || rent.length > 0 || buy.length > 0;
-
-  if (loading) {
-    return (
-      <div className="flex items-center gap-3 py-2">
-        <Loader2 className="w-4 h-4 text-zinc-500 animate-spin" />
-        <span className="text-zinc-400 text-sm">Checking availability…</span>
-      </div>
-    );
-  }
-
-  if (!hasAny) {
-    return (
-      <p className="text-zinc-400 text-sm italic">
-        Availability data not found for your region. Try searching on{" "}
-        <a
-          href="https://www.justwatch.com"
-          target="_blank"
-          rel="noopener noreferrer"
-          className="text-accent-purple-light hover:underline"
-        >
-          JustWatch
-        </a>
-        .
-      </p>
-    );
-  }
-
-  const ProviderGroup = ({
-    label,
-    providers,
-  }: {
-    label: string;
-    providers: TMDBData["providers"];
-  }) =>
-    providers.length > 0 ? (
-      <div className="space-y-2">
-        <p className="text-zinc-500 text-xs font-semibold uppercase tracking-widest">{label}</p>
-        <div className="flex flex-wrap gap-2">
-          {providers.map((p) => (
-            <motion.a
-              key={p.id}
-              href={p.link || "https://www.justwatch.com"}
-              target="_blank"
-              rel="noopener noreferrer"
-              whileHover={{ scale: 1.08, y: -2 }}
-              whileTap={{ scale: 0.95 }}
-              title={`Watch on ${p.name}`}
-              className="group relative w-11 h-11 rounded-xl overflow-hidden border border-white/10 hover:border-accent-purple/50 transition-colors shadow-md flex-shrink-0"
-            >
-              <Image
-                src={p.logoUrl}
-                alt={p.name}
-                fill
-                className="object-cover"
-                sizes="44px"
-              />
-              {/* Tooltip */}
-              <div className="absolute -top-9 left-1/2 -translate-x-1/2 bg-surface-3 border border-border-subtle text-white text-[10px] font-medium px-2 py-1 rounded whitespace-nowrap opacity-0 group-hover:opacity-100 transition-opacity pointer-events-none shadow-xl z-10">
-                {p.name}
-              </div>
-            </motion.a>
-          ))}
-        </div>
-      </div>
-    ) : null;
-
-  return (
-    <div className="space-y-4">
-      <ProviderGroup label="Stream" providers={streaming} />
-      <ProviderGroup label="Rent" providers={rent} />
-      <ProviderGroup label="Buy" providers={buy} />
-      <p className="text-zinc-500 text-[10px]">
-        Availability shown for US region · Powered by TMDB &amp; JustWatch
-      </p>
-    </div>
-  );
-}
-
-// ─── Main modal ──────────────────────────────────────────────────────────────
-
 export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModalProps) {
   const [selectedSeason, setSelectedSeason] = useState(0);
   const { isInList, toggle } = useMyList();
   const closeRef = useRef<HTMLButtonElement>(null);
   const modalRef = useRef<HTMLDivElement>(null);
 
-  // Fetch full TMDB data when modal opens
   const { data: tmdbData, loading: tmdbLoading } = useTMDB(
     item?.tmdbId,
     item?.tmdbType,
     !!item
   );
 
-  // Seasons list comes from TMDB — no hardcoded data needed
+  // Seasons from TMDB — no hardcoded data
   const tmdbSeasons: TMDBSeason[] | null =
     item?.type === "series" ? (tmdbData?.seasons ?? null) : null;
   const currentSeasonNumber = tmdbSeasons?.[selectedSeason]?.number ?? 1;
@@ -167,6 +79,20 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
   const trailerKey = tmdbData?.trailerKey ?? item?.trailerYouTubeId;
   const backdropSrc = tmdbData?.backdropUrl ?? null;
 
+  // ── Watch Now: pick the best legal streaming destination ──────────────────
+  const flatrateProvider = tmdbData?.providers.find((p) => p.type === "flatrate");
+  const anyProvider      = flatrateProvider ?? tmdbData?.providers[0] ?? null;
+  const justWatchUrl     = `https://www.justwatch.com/us/search?q=${encodeURIComponent(item?.title ?? "")}`;
+  const watchUrl         = anyProvider?.link || justWatchUrl;
+
+  const watchLabel = tmdbLoading
+    ? "Watch Now"
+    : flatrateProvider
+      ? `Watch on ${flatrateProvider.name}`
+      : anyProvider
+        ? "Rent / Buy"
+        : "Find Where to Watch";
+
   return (
     <AnimatePresence>
       {item && (
@@ -198,7 +124,7 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
             exit={{ y: "100%", opacity: 0 }}
             transition={{ type: "spring", damping: 28, stiffness: 300 }}
           >
-            {/* ── Hero: TMDB backdrop ── */}
+            {/* ── Hero backdrop ── */}
             <div className="relative flex-shrink-0">
               <div className="relative w-full aspect-[16/9] overflow-hidden bg-surface-2">
                 {backdropSrc ? (
@@ -214,10 +140,10 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                   <div className="absolute inset-0 skeleton opacity-60" />
                 )}
 
-                {/* Scrim — heavier at bottom so body text never sits against the image */}
+                {/* Heavy scrim — fully covers bottom so body text never touches the image */}
                 <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/70 to-black/10" />
 
-                {/* Play trailer overlay button */}
+                {/* Play trailer overlay */}
                 {trailerKey && (
                   <motion.button
                     initial={{ opacity: 0, scale: 0.8 }}
@@ -236,7 +162,7 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                 )}
               </div>
 
-              {/* Close button */}
+              {/* Close */}
               <button
                 ref={closeRef}
                 onClick={onClose}
@@ -247,10 +173,11 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
               </button>
             </div>
 
-            {/* ── Scrollable body ── explicit bg ensures no image bleedthrough */}
+            {/* ── Scrollable body ── */}
             <div className="overflow-y-auto flex-1 bg-surface">
               <div className="px-6 sm:px-8 pb-8 space-y-6">
-                {/* Title row */}
+
+                {/* ── Title + action row ── */}
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 pt-2">
                   <div className="space-y-2">
                     <h2 className="text-3xl sm:text-4xl font-black text-white tracking-tight leading-tight">
@@ -280,34 +207,49 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                     </div>
                   </div>
 
+                  {/* Buttons */}
                   <div className="flex items-center gap-2 flex-shrink-0">
-                    {/* Watch Now — opens multi-server video player */}
-                    <motion.button
+                    {/* PRIMARY: Watch Now → legal streaming provider */}
+                    <motion.a
+                      href={watchUrl}
+                      target="_blank"
+                      rel="noopener noreferrer"
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
-                      onClick={() => onWatch(item)}
-                      className="flex items-center gap-2 px-5 py-2.5 bg-accent-purple text-white font-bold text-sm rounded-lg shadow-lg shadow-accent-purple/25 hover:bg-accent-purple/90 transition-colors"
+                      className="flex items-center gap-2 px-5 py-2.5 bg-white text-black font-bold text-sm rounded-lg hover:bg-white/90 transition-all shadow-lg"
                     >
-                      <MonitorPlay className="w-4 h-4" />
-                      Watch Now
-                    </motion.button>
+                      {tmdbLoading ? (
+                        <Loader2 className="w-4 h-4 animate-spin text-black/50" />
+                      ) : flatrateProvider ? (
+                        <div className="relative w-5 h-5 rounded-[3px] overflow-hidden flex-shrink-0">
+                          <Image
+                            src={flatrateProvider.logoUrl}
+                            alt={flatrateProvider.name}
+                            fill
+                            className="object-cover"
+                            sizes="20px"
+                          />
+                        </div>
+                      ) : (
+                        <ExternalLink className="w-4 h-4" />
+                      )}
+                      {watchLabel}
+                    </motion.a>
 
+                    {/* SECONDARY: Trailer */}
                     {trailerKey ? (
                       <motion.button
                         whileHover={{ scale: 1.05 }}
                         whileTap={{ scale: 0.95 }}
                         onClick={() => onPlay(item, trailerKey)}
-                        className="flex items-center gap-2 px-5 py-2.5 bg-white text-black font-bold text-sm rounded-lg"
+                        className="flex items-center gap-2 px-4 py-2.5 bg-white/10 border border-white/20 text-white font-semibold text-sm rounded-lg hover:bg-white/20 transition-all"
                       >
-                        <Play className="w-4 h-4 fill-black" />
+                        <Play className="w-4 h-4 fill-white" />
                         Trailer
                       </motion.button>
-                    ) : (
-                      <div className="flex items-center gap-2 px-5 py-2.5 bg-white/10 text-white/30 font-bold text-sm rounded-lg cursor-default">
-                        <Film className="w-4 h-4" />
-                        No Trailer
-                      </div>
-                    )}
+                    ) : null}
+
+                    {/* My List */}
                     <motion.button
                       whileHover={{ scale: 1.08 }}
                       whileTap={{ scale: 0.95 }}
@@ -315,16 +257,18 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                       className={`w-10 h-10 rounded-full border flex items-center justify-center transition-colors ${
                         inList
                           ? "bg-white/20 border-white/30 text-white"
-                          : "bg-transparent border-white/20 text-white/70 hover:text-white hover:border-white/40"
+                          : "bg-transparent border-white/20 text-zinc-400 hover:text-white hover:border-white/40"
                       }`}
                       aria-label={inList ? "Remove from list" : "Add to list"}
                     >
                       {inList ? <Check className="w-4 h-4" /> : <Plus className="w-4 h-4" />}
                     </motion.button>
+
+                    {/* Share */}
                     <motion.button
                       whileHover={{ scale: 1.08 }}
                       whileTap={{ scale: 0.95 }}
-                      className="w-10 h-10 rounded-full border border-white/20 text-white/70 hover:text-white hover:border-white/40 flex items-center justify-center transition-colors"
+                      className="w-10 h-10 rounded-full border border-white/20 text-zinc-400 hover:text-white hover:border-white/40 flex items-center justify-center transition-colors"
                       aria-label="Share"
                       onClick={() => { if (navigator.share) navigator.share({ title: item.title, text: item.synopsis }); }}
                     >
@@ -333,10 +277,10 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                   </div>
                 </div>
 
-                {/* Synopsis */}
+                {/* ── Synopsis ── */}
                 <p className="text-zinc-200 leading-relaxed text-sm sm:text-base">{item.synopsis}</p>
 
-                {/* Details */}
+                {/* ── Details ── */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                   {item.cast && (
                     <div>
@@ -361,21 +305,6 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                   )}
                 </div>
 
-                {/* ── Where to Watch ── */}
-                <div className="space-y-3 pt-1">
-                  <div className="flex items-center gap-2">
-                    <Tv2 className="w-4 h-4 text-accent-purple" />
-                    <h3 className="text-white font-bold text-base">Where to Watch</h3>
-                    <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-widest ml-auto">
-                      Legal · Licensed
-                    </span>
-                  </div>
-
-                  <div className="bg-surface-2 rounded-xl p-4 border border-border-subtle">
-                    <WatchProviders tmdbData={tmdbData} loading={tmdbLoading} />
-                  </div>
-                </div>
-
                 {/* ── Episodes (TV only, TMDB-driven) ── */}
                 {item.type === "series" && (tmdbSeasons?.length ?? 0) > 0 && (
                   <div className="space-y-4">
@@ -396,66 +325,66 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                       )}
                     </div>
 
-                    <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-                      {epLoading ? (
-                        <div className="flex items-center gap-3 py-6 text-zinc-500">
-                          <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
-                          <span className="text-sm">Loading episodes…</span>
-                        </div>
-                      ) : tmdbEpisodes.length === 0 ? (
-                        <p className="text-zinc-500 text-sm py-4 text-center">No episode data available</p>
-                      ) : tmdbEpisodes.map((ep) => (
-                        <motion.div
-                          key={ep.number}
-                          whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
-                          className="flex gap-3 rounded-xl p-3 cursor-pointer group/ep"
-                          onClick={() => onWatch(item, currentSeasonNumber, ep.number)}
-                        >
-                          <div className="relative flex-shrink-0 w-28 sm:w-36 aspect-video rounded-lg overflow-hidden bg-surface-3">
-                            {ep.stillUrl ? (
-                              <Image
-                                src={ep.stillUrl}
-                                alt={ep.title}
-                                fill
-                                className="object-cover"
-                                sizes="144px"
-                              />
-                            ) : (
-                              <div className="absolute inset-0 bg-surface-2 flex items-center justify-center">
-                                <Film className="w-6 h-6 text-white/20" />
-                              </div>
-                            )}
-                            <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/ep:opacity-100 transition-opacity flex items-center justify-center">
-                              <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                                <Play className="w-4 h-4 text-white fill-white ml-0.5" />
-                              </div>
-                            </div>
+                    {/* Episode list — explicit dark surface for legibility */}
+                    <div className="rounded-xl bg-zinc-900/80 overflow-hidden border border-white/5">
+                      <div className="max-h-72 overflow-y-auto">
+                        {epLoading ? (
+                          <div className="flex items-center gap-3 py-8 px-4 text-zinc-500">
+                            <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
+                            <span className="text-sm">Loading episodes…</span>
                           </div>
-                          <div className="flex-1 min-w-0 space-y-1">
-                            <div className="flex items-baseline justify-between gap-2">
-                              <p className="text-white font-semibold text-sm truncate">
-                                {ep.number}. {ep.title}
-                              </p>
-                              {ep.runtime && (
-                                <span className="text-zinc-400 text-xs flex-shrink-0">{ep.runtime}m</span>
+                        ) : tmdbEpisodes.length === 0 ? (
+                          <p className="text-zinc-500 text-sm py-8 text-center">No episode data available</p>
+                        ) : tmdbEpisodes.map((ep, idx) => (
+                          <motion.div
+                            key={ep.number}
+                            whileHover={{ backgroundColor: "rgba(255,255,255,0.06)" }}
+                            className={`flex gap-3 p-3 cursor-pointer group/ep ${
+                              idx < tmdbEpisodes.length - 1 ? "border-b border-white/5" : ""
+                            }`}
+                            onClick={() => onWatch(item, currentSeasonNumber, ep.number)}
+                          >
+                            {/* Thumbnail */}
+                            <div className="relative flex-shrink-0 w-28 sm:w-36 aspect-video rounded-lg overflow-hidden bg-zinc-800">
+                              {ep.stillUrl ? (
+                                <Image
+                                  src={ep.stillUrl}
+                                  alt={ep.title}
+                                  fill
+                                  className="object-cover"
+                                  sizes="144px"
+                                />
+                              ) : (
+                                <div className="absolute inset-0 flex items-center justify-center">
+                                  <Film className="w-6 h-6 text-zinc-600" />
+                                </div>
                               )}
+                              <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/ep:opacity-100 transition-opacity flex items-center justify-center">
+                                <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                                  <Play className="w-4 h-4 text-white fill-white ml-0.5" />
+                                </div>
+                              </div>
                             </div>
-                            <p className="text-zinc-400 text-xs leading-relaxed line-clamp-2">{ep.synopsis}</p>
-                          </div>
-                        </motion.div>
-                      ))}
-                    </div>
 
-                    {/* Legal note for episodes */}
-                    <div className="flex items-start gap-2 p-3 bg-surface-3 rounded-xl border border-border-subtle">
-                      <ExternalLink className="w-4 h-4 text-accent-purple mt-0.5 flex-shrink-0" />
-                      <p className="text-zinc-400 text-xs leading-relaxed">
-                        CINERA is a discovery platform — full episodes are available on licensed streaming services above.
-                        We show trailers and help you find where to watch legally.
-                      </p>
+                            {/* Text */}
+                            <div className="flex-1 min-w-0 space-y-1 py-0.5">
+                              <div className="flex items-baseline justify-between gap-2">
+                                <p className="text-white font-semibold text-sm truncate">
+                                  {ep.number}. {ep.title}
+                                </p>
+                                {ep.runtime && (
+                                  <span className="text-zinc-400 text-xs flex-shrink-0">{ep.runtime}m</span>
+                                )}
+                              </div>
+                              <p className="text-zinc-300 text-xs leading-relaxed line-clamp-2">{ep.synopsis}</p>
+                            </div>
+                          </motion.div>
+                        ))}
+                      </div>
                     </div>
                   </div>
                 )}
+
               </div>
             </div>
           </motion.div>
