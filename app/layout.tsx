@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar";
+import BottomNav from "./components/BottomNav";
 import RegisterSW from "./components/RegisterSW";
 
 const inter = Inter({
@@ -11,7 +12,7 @@ const inter = Inter({
 });
 
 export const viewport: Viewport = {
-  themeColor: "#7b5cf0",
+  themeColor: "#0a0a0f",
   width: "device-width",
   initialScale: 1,
   viewportFit: "cover",
@@ -55,7 +56,10 @@ export default function RootLayout({
       <body className={`${inter.variable} bg-base text-text-primary antialiased`}>
         <RegisterSW />
         <Navbar />
-        {children}
+        <div className="pb-16 lg:pb-0">
+          {children}
+        </div>
+        <BottomNav />
       </body>
     </html>
   );

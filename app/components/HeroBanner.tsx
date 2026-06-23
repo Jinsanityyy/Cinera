@@ -151,7 +151,7 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
       : null;
 
   return (
-    <section className="relative w-full h-[85vh] min-h-[560px] max-h-[900px] overflow-hidden bg-base">
+    <section className="relative w-full h-[58vh] sm:h-[75vh] lg:h-[85vh] min-h-[360px] sm:min-h-[480px] lg:min-h-[560px] max-h-[900px] overflow-hidden bg-base">
       {/* Backdrop */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -201,7 +201,7 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
       <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-base/60 to-transparent z-[3] pointer-events-none" />
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col justify-end h-full pb-16 sm:pb-20 lg:pb-24 px-6 sm:px-10 lg:px-16 max-w-3xl">
+      <div className="relative z-10 flex flex-col justify-end h-full pb-10 sm:pb-20 lg:pb-24 px-4 sm:px-10 lg:px-16 max-w-3xl">
         <AnimatePresence mode="wait">
           <motion.div
             key={item.id}
@@ -231,7 +231,7 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
             </div>
 
             {/* Title */}
-            <h1 className="text-5xl sm:text-6xl lg:text-7xl xl:text-8xl font-black tracking-tighter text-white leading-[0.9] drop-shadow-2xl">
+            <h1 className="text-4xl sm:text-5xl lg:text-7xl xl:text-8xl font-black tracking-tighter text-white leading-[0.9] drop-shadow-2xl">
               {item.title}
             </h1>
 
@@ -252,41 +252,41 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
               ))}
             </div>
 
-            {/* Synopsis */}
-            <p className="text-sm sm:text-base text-white/75 leading-relaxed max-w-xl line-clamp-3">
+            {/* Synopsis — hidden on mobile to save space */}
+            <p className="hidden sm:block text-sm sm:text-base text-white/75 leading-relaxed max-w-xl line-clamp-3">
               {item.synopsis}
             </p>
 
             {/* Actions */}
-            <div className="flex flex-wrap items-center gap-3 pt-2">
+            <div className="flex items-center gap-2 pt-1">
               <motion.button
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => onPlay(item, trailerKey)}
-                className="flex items-center gap-2.5 px-7 py-3 bg-white text-black font-bold text-sm rounded-lg hover:bg-white/90 transition-colors shadow-xl"
+                className="flex items-center gap-2 px-5 py-2.5 sm:px-7 sm:py-3 bg-white text-black font-bold text-sm rounded-lg hover:bg-white/90 transition-colors shadow-xl"
               >
-                <Play className="w-5 h-5 fill-black" />
-                Play Trailer
+                <Play className="w-4 h-4 sm:w-5 sm:h-5 fill-black" />
+                <span>Play Trailer</span>
               </motion.button>
 
               <motion.button
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => toggle(item)}
-                className="flex items-center gap-2.5 px-7 py-3 bg-white/15 backdrop-blur-sm text-white font-bold text-sm rounded-lg hover:bg-white/25 transition-colors border border-white/10"
+                className="flex items-center gap-2 px-4 py-2.5 sm:px-7 sm:py-3 bg-white/15 backdrop-blur-sm text-white font-bold text-sm rounded-lg hover:bg-white/25 transition-colors border border-white/10"
               >
-                {inList ? <Check className="w-5 h-5" /> : <Plus className="w-5 h-5" />}
-                {inList ? "In My List" : "My List"}
+                {inList ? <Check className="w-4 h-4 sm:w-5 sm:h-5" /> : <Plus className="w-4 h-4 sm:w-5 sm:h-5" />}
+                <span className="hidden xs:inline">{inList ? "In My List" : "My List"}</span>
               </motion.button>
 
               <motion.button
                 whileHover={{ scale: 1.04 }}
                 whileTap={{ scale: 0.97 }}
                 onClick={() => onMoreInfo(item)}
-                className="flex items-center gap-2.5 px-7 py-3 bg-white/10 backdrop-blur-sm text-white font-semibold text-sm rounded-lg hover:bg-white/20 transition-colors border border-white/10"
+                className="flex items-center gap-2 px-4 py-2.5 sm:px-7 sm:py-3 bg-white/10 backdrop-blur-sm text-white font-semibold text-sm rounded-lg hover:bg-white/20 transition-colors border border-white/10"
               >
                 <Info className="w-4 h-4" />
-                More Info
+                <span className="hidden xs:inline">More Info</span>
               </motion.button>
             </div>
           </motion.div>
