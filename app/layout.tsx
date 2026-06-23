@@ -1,13 +1,21 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { Inter } from "next/font/google";
 import "./globals.css";
 import Navbar from "./components/Navbar";
+import RegisterSW from "./components/RegisterSW";
 
 const inter = Inter({
   subsets: ["latin"],
   variable: "--font-sans",
   weight: ["300", "400", "500", "600", "700"],
 });
+
+export const viewport: Viewport = {
+  themeColor: "#7b5cf0",
+  width: "device-width",
+  initialScale: 1,
+  viewportFit: "cover",
+};
 
 export const metadata: Metadata = {
   title: {
@@ -17,6 +25,12 @@ export const metadata: Metadata = {
   description:
     "Discover the best shows and movies, watch official trailers, and find where to stream them legally. CINERA is your premium content discovery platform.",
   keywords: ["streaming discovery", "where to watch", "movies", "TV shows", "trailers"],
+  manifest: "/manifest.json",
+  appleWebApp: {
+    capable: true,
+    statusBarStyle: "black-translucent",
+    title: "CINERA",
+  },
   openGraph: {
     title: "CINERA — Premium Content Discovery",
     description:
@@ -39,6 +53,7 @@ export default function RootLayout({
   return (
     <html lang="en" className="dark">
       <body className={`${inter.variable} bg-base text-text-primary antialiased`}>
+        <RegisterSW />
         <Navbar />
         {children}
       </body>
