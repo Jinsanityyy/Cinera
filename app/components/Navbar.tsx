@@ -5,6 +5,7 @@ import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, Bell, ChevronDown, Menu, X } from "lucide-react";
+import { useProfiles } from "@/app/hooks/useProfiles";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -16,6 +17,7 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
   const pathname = usePathname();
+  const { activeProfile } = useProfiles();
 
   useEffect(() => {
     const onScroll = () => setScrolled(window.scrollY > 40);
@@ -93,8 +95,12 @@ export default function Navbar() {
               </button>
 
               <Link href="/profiles" className="flex items-center gap-1.5 group">
-                <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-accent-purple to-accent-crimson flex items-center justify-center text-xs font-bold text-white flex-shrink-0">
-                  J
+                <div className={`w-8 h-8 rounded-lg flex items-center justify-center text-sm font-bold text-white flex-shrink-0 ${
+                  activeProfile
+                    ? `bg-gradient-to-br ${activeProfile.color}`
+                    : "bg-gradient-to-br from-accent-purple to-accent-crimson"
+                }`}>
+                  {activeProfile ? activeProfile.emoji : "?"}
                 </div>
                 <ChevronDown className="hidden sm:block w-4 h-4 text-text-secondary group-hover:text-white transition-colors" />
               </Link>
