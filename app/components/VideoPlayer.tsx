@@ -5,8 +5,8 @@ import { useEffect, useRef, useState, useCallback } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { X, Loader2, AlertTriangle, Server, RefreshCw, ChevronDown, ListVideo, Play } from "lucide-react";
 import { useVideoSources } from "@/app/hooks/useVideoSources";
+import { useTMDB } from "@/app/hooks/useTMDB";
 import { useTMDBSeason } from "@/app/hooks/useTMDBSeason";
-import type { Season } from "@/data/content";
 
 // ─── localStorage helpers ─────────────────────────────────────────────────────
 
@@ -29,8 +29,8 @@ interface VideoPlayerProps {
   title: string;
   season?: number;
   episode?: number;
-  seasons?: Season[];
   tmdbId?: number;
+  tmdbType?: "movie" | "tv";
   onClose: () => void;
 }
 
@@ -41,8 +41,8 @@ export default function VideoPlayer({
   title,
   season: initialSeason = 1,
   episode: initialEpisode = 1,
-  seasons,
   tmdbId,
+  tmdbType,
   onClose,
 }: VideoPlayerProps) {
   // ── Internal episode/season state ─────────────────────────────────────────
@@ -59,11 +59,16 @@ export default function VideoPlayer({
 
   const { sources, loading: sourcesLoading } = useVideoSources(contentId, activeSeason, activeEpisode);
 
-  // Fetch real TMDB episode stills for the picker
+  // Fetch TMDB data for season list (TV only)
+  const { data: tmdbData } = useTMDB(tmdbId, tmdbType, !!contentId && !!tmdbId);
+  const tmdbSeasons = tmdbType === "tv" ? (tmdbData?.seasons ?? null) : null;
+  const hasSeasonsData = !!tmdbSeasons?.length;
+
+  // Fetch episode stills for the active season
   const { episodes: tmdbEpisodes } = useTMDBSeason(
     tmdbId ?? null,
     activeSeason,
-    !!contentId && !!seasons?.length
+    !!contentId && tmdbType === "tv" && hasSeasonsData
   );
 
   // ── Player state ──────────────────────────────────────────────────────────
@@ -188,9 +193,6 @@ export default function VideoPlayer({
     setActiveEpisode(e);
     setShowEpisodes(false);
   }, []);
-
-  const currentSeasonData = seasons?.find((s) => s.number === activeSeason);
-  const hasSeasonsData    = !!seasons?.length;
 
   const activeSource    = sources[activeIdx];
   const isEmbed         = activeSource?.type === "embed";
@@ -389,11 +391,11 @@ export default function VideoPlayer({
                     >
                       <div className="p-3 space-y-3">
                         {/* Season tabs */}
-                        {seasons && seasons.length > 1 && (
+                        {tmdbSeasons && tmdbSeasons.length > 1 && (
                           <div className="flex gap-1.5 flex-wrap">
-                            {seasons.map((s) => (
+                            {tmdbSeasons.map((s) => (
                               <button
-                                key={s.id}
+                                key={s.number}
                                 onClick={() => { setActiveSeason(s.number); setActiveEpisode(1); }}
                                 className={[
                                   "px-3 py-1 rounded-lg text-xs font-semibold transition-all",
@@ -410,29 +412,25 @@ export default function VideoPlayer({
 
                         {/* Episode thumbnail grid */}
                         <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2 max-h-72 overflow-y-auto pr-0.5">
-                          {currentSeasonData?.episodes.map((ep) => {
-                            const tmdbEp = tmdbEpisodes.find((t) => t.number === ep.episode);
-                            const thumb = tmdbEp?.stillUrl ?? null;
-                            const epTitle = tmdbEp?.title ?? ep.title;
-                            const isActive = ep.episode === activeEpisode && activeSeason === currentSeasonData.number;
+                          {tmdbEpisodes.map((ep) => {
                             return (
                               <motion.button
-                                key={ep.id}
-                                onClick={() => selectEpisode(currentSeasonData.number, ep.episode)}
+                                key={ep.number}
+                                onClick={() => selectEpisode(activeSeason, ep.number)}
                                 whileHover={{ scale: 1.02 }}
                                 whileTap={{ scale: 0.96 }}
-                                title={epTitle}
+                                title={ep.title}
                                 className={[
                                   "relative text-left rounded-xl overflow-hidden transition-all group",
-                                  isActive ? "ring-2 ring-accent-purple" : "opacity-70 hover:opacity-100",
+                                  ep.number === activeEpisode ? "ring-2 ring-accent-purple" : "opacity-70 hover:opacity-100",
                                 ].join(" ")}
                               >
                                 {/* Thumbnail */}
                                 <div className="relative aspect-video bg-white/8 rounded-xl overflow-hidden">
-                                  {thumb ? (
+                                  {ep.stillUrl ? (
                                     <Image
-                                      src={thumb}
-                                      alt={epTitle}
+                                      src={ep.stillUrl}
+                                      alt={ep.title}
                                       fill
                                       className="object-cover"
                                       sizes="(max-width: 640px) 50vw, (max-width: 768px) 33vw, 25vw"
@@ -441,7 +439,7 @@ export default function VideoPlayer({
                                     <div className="w-full h-full bg-gradient-to-br from-white/5 to-white/10" />
                                   )}
                                   {/* Active overlay */}
-                                  {isActive && (
+                                  {ep.number === activeEpisode && (
                                     <div className="absolute inset-0 bg-accent-purple/20 flex items-center justify-center">
                                       <div className="w-7 h-7 rounded-full bg-accent-purple/90 flex items-center justify-center shadow-lg">
                                         <Play className="w-3.5 h-3.5 text-white fill-white ml-0.5" />
@@ -449,7 +447,7 @@ export default function VideoPlayer({
                                     </div>
                                   )}
                                   {/* Hover overlay */}
-                                  {!isActive && (
+                                  {ep.number !== activeEpisode && (
                                     <div className="absolute inset-0 bg-black/50 opacity-0 group-hover:opacity-100 transition-opacity flex items-center justify-center">
                                       <div className="w-7 h-7 rounded-full bg-white/20 flex items-center justify-center">
                                         <Play className="w-3.5 h-3.5 text-white fill-white ml-0.5" />
@@ -459,17 +457,17 @@ export default function VideoPlayer({
                                   {/* Episode badge */}
                                   <div className={[
                                     "absolute bottom-1 left-1.5 px-1.5 py-0.5 rounded text-xs font-bold",
-                                    isActive ? "bg-accent-purple text-white" : "bg-black/70 text-white/80",
+                                    ep.number === activeEpisode ? "bg-accent-purple text-white" : "bg-black/70 text-white/80",
                                   ].join(" ")}>
-                                    E{ep.episode}
+                                    E{ep.number}
                                   </div>
                                 </div>
                                 {/* Episode title */}
                                 <p className={[
                                   "text-xs mt-1 truncate px-0.5 pb-0.5",
-                                  isActive ? "text-white font-semibold" : "text-white/50",
+                                  ep.number === activeEpisode ? "text-white font-semibold" : "text-white/50",
                                 ].join(" ")}>
-                                  {epTitle}
+                                  {ep.title}
                                 </p>
                               </motion.button>
                             );

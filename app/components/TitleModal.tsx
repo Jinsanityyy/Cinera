@@ -3,11 +3,12 @@
 import { useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, Play, Plus, Check, Share2, ExternalLink, Tv2, Film, Loader2, MonitorPlay } from "lucide-react";
+import { X, Play, Plus, Check, Share2, ExternalLink, Tv2, Film, Loader2, MonitorPlay, Clock } from "lucide-react";
 import { ContentItem } from "@/data/content";
 import { useMyList } from "@/app/hooks/useMyList";
 import { useTMDB, type TMDBData } from "@/app/hooks/useTMDB";
 import { useTMDBSeason } from "@/app/hooks/useTMDBSeason";
+import type { TMDBSeason } from "@/lib/tmdb";
 
 interface TitleModalProps {
   item: ContentItem | null;
@@ -116,12 +117,15 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
     !!item
   );
 
-  // Fetch TMDB episode stills for the currently selected season
-  const currentSeasonNumber = item?.seasons?.[selectedSeason]?.number ?? 1;
-  const { episodes: tmdbEpisodes } = useTMDBSeason(
+  // Seasons list comes from TMDB — no hardcoded data needed
+  const tmdbSeasons: TMDBSeason[] | null =
+    item?.type === "series" ? (tmdbData?.seasons ?? null) : null;
+  const currentSeasonNumber = tmdbSeasons?.[selectedSeason]?.number ?? 1;
+
+  const { episodes: tmdbEpisodes, loading: epLoading } = useTMDBSeason(
     item?.tmdbId ?? null,
     currentSeasonNumber,
-    !!item && item.type === "series" && !!item.seasons?.length
+    !!item && item.type === "series" && !!tmdbSeasons?.length
   );
 
   const inList = item ? isInList(item.id) : false;
@@ -257,12 +261,17 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                         {item.matchPercent}% Match
                       </span>
                       <span className="text-sm text-white/50">{item.year}</span>
-                      {item.type === "series" && item.seasons && (
+                      {item.type === "series" && tmdbSeasons && tmdbSeasons.length > 0 && (
                         <span className="text-sm text-white/50">
-                          {item.seasons.length} Season{item.seasons.length !== 1 ? "s" : ""}
+                          {tmdbSeasons.length} Season{tmdbSeasons.length !== 1 ? "s" : ""}
                         </span>
                       )}
-                      {item.type === "movie" && item.duration && (
+                      {item.type === "movie" && tmdbData?.runtime && (
+                        <span className="text-sm text-white/50 flex items-center gap-1">
+                          <Clock className="w-3.5 h-3.5" />{tmdbData.runtime}m
+                        </span>
+                      )}
+                      {item.type === "movie" && !tmdbData?.runtime && item.duration && (
                         <span className="text-sm text-white/50">{item.duration}</span>
                       )}
                       <span className="text-xs border border-white/20 text-white/50 px-1.5 py-0.5 rounded">
@@ -367,20 +376,20 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                   </div>
                 </div>
 
-                {/* ── Episodes ── */}
-                {item.type === "series" && item.seasons && item.seasons.length > 0 && (
+                {/* ── Episodes (TV only, TMDB-driven) ── */}
+                {item.type === "series" && (tmdbSeasons?.length ?? 0) > 0 && (
                   <div className="space-y-4">
                     <div className="flex items-center justify-between">
                       <h3 className="text-white font-bold text-lg">Episodes</h3>
-                      {item.seasons.length > 1 && (
+                      {(tmdbSeasons!.length > 1) && (
                         <select
                           value={selectedSeason}
                           onChange={(e) => setSelectedSeason(Number(e.target.value))}
                           className="bg-surface-3 border border-border-subtle text-white text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-accent-purple"
                         >
-                          {item.seasons.map((s, i) => (
-                            <option key={s.id} value={i}>
-                              Season {s.number} ({s.year})
+                          {tmdbSeasons!.map((s, i) => (
+                            <option key={s.number} value={i}>
+                              Season {s.number}{s.year ? ` (${s.year})` : ""}
                             </option>
                           ))}
                         </select>
@@ -388,27 +397,34 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                     </div>
 
                     <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
-                      {item.seasons[selectedSeason]?.episodes.map((ep) => {
-                        const tmdbEp = tmdbEpisodes.find((t) => t.number === ep.episode);
-                        const thumbSrc = tmdbEp?.stillUrl ?? ep.thumbnailUrl;
-                        const epTitle = tmdbEp?.title ?? ep.title;
-                        const epSynopsis = tmdbEp?.synopsis || ep.synopsis;
-                        const epRuntime = tmdbEp?.runtime ?? ep.runtime;
-                        return (
+                      {epLoading ? (
+                        <div className="flex items-center gap-3 py-6 text-white/30">
+                          <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
+                          <span className="text-sm">Loading episodes…</span>
+                        </div>
+                      ) : tmdbEpisodes.length === 0 ? (
+                        <p className="text-white/30 text-sm py-4 text-center">No episode data available</p>
+                      ) : tmdbEpisodes.map((ep) => (
                         <motion.div
-                          key={ep.id}
+                          key={ep.number}
                           whileHover={{ backgroundColor: "rgba(255,255,255,0.05)" }}
                           className="flex gap-3 rounded-xl p-3 cursor-pointer group/ep"
-                          onClick={() => onWatch(item, item.seasons![selectedSeason].number, ep.episode)}
+                          onClick={() => onWatch(item, currentSeasonNumber, ep.number)}
                         >
                           <div className="relative flex-shrink-0 w-28 sm:w-36 aspect-video rounded-lg overflow-hidden bg-surface-3">
-                            <Image
-                              src={thumbSrc}
-                              alt={epTitle}
-                              fill
-                              className="object-cover"
-                              sizes="144px"
-                            />
+                            {ep.stillUrl ? (
+                              <Image
+                                src={ep.stillUrl}
+                                alt={ep.title}
+                                fill
+                                className="object-cover"
+                                sizes="144px"
+                              />
+                            ) : (
+                              <div className="absolute inset-0 bg-surface-2 flex items-center justify-center">
+                                <Film className="w-6 h-6 text-white/20" />
+                              </div>
+                            )}
                             <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/ep:opacity-100 transition-opacity flex items-center justify-center">
                               <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
                                 <Play className="w-4 h-4 text-white fill-white ml-0.5" />
@@ -418,15 +434,16 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                           <div className="flex-1 min-w-0 space-y-1">
                             <div className="flex items-baseline justify-between gap-2">
                               <p className="text-white font-semibold text-sm truncate">
-                                {ep.episode}. {epTitle}
+                                {ep.number}. {ep.title}
                               </p>
-                              <span className="text-white/40 text-xs flex-shrink-0">{epRuntime}m</span>
+                              {ep.runtime && (
+                                <span className="text-white/40 text-xs flex-shrink-0">{ep.runtime}m</span>
+                              )}
                             </div>
-                            <p className="text-white/50 text-xs leading-relaxed line-clamp-2">{epSynopsis}</p>
+                            <p className="text-white/50 text-xs leading-relaxed line-clamp-2">{ep.synopsis}</p>
                           </div>
                         </motion.div>
-                        );
-                      })}
+                      ))}
                     </div>
 
                     {/* Legal note for episodes */}

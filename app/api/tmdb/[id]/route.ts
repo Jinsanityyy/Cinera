@@ -19,7 +19,7 @@ export async function GET(
   if (!hasKey) {
     console.warn("[TMDB] TMDB_API_KEY is not set — returning empty data");
     return NextResponse.json(
-      { backdropUrl: null, posterUrl: null, trailerKey: null, providers: [] },
+      { backdropUrl: null, posterUrl: null, trailerKey: null, providers: [], seasons: [], runtime: null },
       { status: 200 }
     );
   }
@@ -33,7 +33,7 @@ export async function GET(
   } catch (err) {
     console.error(`[TMDB] id=${tmdbId} fetch failed:`, err);
     return NextResponse.json(
-      { backdropUrl: null, posterUrl: null, trailerKey: null, providers: [] },
+      { backdropUrl: null, posterUrl: null, trailerKey: null, providers: [], seasons: [], runtime: null },
       { status: 200 }
     );
   }

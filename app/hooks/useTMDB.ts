@@ -1,9 +1,9 @@
 "use client";
 
 import { useState, useEffect, useRef } from "react";
-import type { TMDBData } from "@/lib/tmdb";
+import type { TMDBData, TMDBSeason } from "@/lib/tmdb";
 
-export type { TMDBData };
+export type { TMDBData, TMDBSeason };
 
 const cache = new Map<string, TMDBData>();
 

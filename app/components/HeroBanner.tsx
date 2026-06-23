@@ -107,10 +107,8 @@ export default function HeroBanner({ items, onMoreInfo, onPlay }: HeroBannerProp
               <span className="inline-flex items-center gap-1 text-xs font-semibold text-white/70 bg-white/10 border border-white/10 px-2 py-0.5 rounded">
                 {item.maturityRating}
               </span>
-              {item.type === "series" && item.seasons && (
-                <span className="text-sm text-white/60 font-medium">
-                  {item.seasons.length} Season{item.seasons.length !== 1 ? "s" : ""}
-                </span>
+              {item.type === "series" && (
+                <span className="text-sm text-white/60 font-medium">Series</span>
               )}
               {item.type === "movie" && item.duration && (
                 <span className="text-sm text-white/60 font-medium">{item.duration}</span>

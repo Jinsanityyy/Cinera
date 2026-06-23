@@ -14,9 +14,18 @@ export type WatchProvider = {
   type: "flatrate" | "rent" | "buy";
 };
 
+export type TMDBSeason = {
+  number: number;
+  name: string;
+  episodeCount: number;
+  year: number | null;
+};
+
 export type TMDBData = TMDBImageData & {
   trailerKey: string | null;
   providers: WatchProvider[];
+  seasons: TMDBSeason[];
+  runtime: number | null;
 };
 
 function key() {
@@ -28,7 +37,7 @@ export async function fetchTMDBData(
   tmdbType: "movie" | "tv"
 ): Promise<TMDBData> {
   if (!key()) {
-    return { backdropUrl: null, posterUrl: null, trailerKey: null, providers: [] };
+    return { backdropUrl: null, posterUrl: null, trailerKey: null, providers: [], seasons: [], runtime: null };
   }
 
   const ep = `${TMDB_BASE}/${tmdbType}/${tmdbId}`;
@@ -88,5 +97,22 @@ export async function fetchTMDBData(
   add(usData.rent, "rent");
   add(usData.buy, "buy");
 
-  return { backdropUrl, posterUrl, trailerKey, providers };
+  type RawSeason = { season_number: number; name: string; episode_count: number; air_date: string | null };
+  const seasons: TMDBSeason[] = tmdbType === "tv"
+    ? (details.seasons ?? [])
+        .filter((s: RawSeason) => s.season_number > 0)
+        .map((s: RawSeason) => ({
+          number: s.season_number,
+          name: s.name,
+          episodeCount: s.episode_count,
+          year: s.air_date ? Number(s.air_date.split("-")[0]) : null,
+        }))
+    : [];
+
+  const runtime: number | null =
+    tmdbType === "movie"
+      ? (details.runtime ?? null)
+      : (details.episode_run_time?.[0] ?? null);
+
+  return { backdropUrl, posterUrl, trailerKey, providers, seasons, runtime };
 }

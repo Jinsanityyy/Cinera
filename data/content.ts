@@ -4,22 +4,6 @@ export type VideoSource = {
   type: "hls" | "mp4" | "embed";
 };
 
-export type Episode = {
-  id: string;
-  title: string;
-  episode: number;
-  runtime: number;
-  synopsis: string;
-  thumbnailUrl: string;
-};
-
-export type Season = {
-  id: string;
-  number: number;
-  year: number;
-  episodes: Episode[];
-};
-
 export type ContentItem = {
   id: string;
   title: string;
@@ -38,7 +22,6 @@ export type ContentItem = {
   trailerYouTubeId: string;
   sources?: VideoSource[];
   duration?: string;
-  seasons?: Season[];
   featured?: boolean;
   tagline?: string;
   cast?: string[];
@@ -81,60 +64,6 @@ const content: ContentItem[] = [
     duration: "4 Seasons",
     cast: ["Harold Perrineau", "Catalina Sandino Moreno", "Eion Bailey", "Hannah Cheramy", "Ricky He"],
     featured: true,
-    seasons: [
-      {
-        id: "from-s1",
-        number: 1,
-        year: 2022,
-        episodes: (["Pilot","The Way Things Are Now","Choosing Day","Don't Say A Word","Tether","Book 27","Moving Day","Broken Windows, Open Doors","Ball and Chain","Masters of Death"] as const).map((title, i) => ({
-          id: `from-s1e${i + 1}`,
-          title,
-          episode: i + 1,
-          runtime: 52,
-          synopsis: "Strange and terrifying events unfold in the mysterious town that no one can escape.",
-          thumbnailUrl: `https://picsum.photos/seed/from-s1e${i + 1}/320/180`,
-        })),
-      },
-      {
-        id: "from-s2",
-        number: 2,
-        year: 2023,
-        episodes: (["Strangers in a Strange Land","Revelations","The Way Back","Into the Woods","Pas De Deux","The Door","Silhouettes","Forest for the Trees","You Are Not Alone","Once Upon a Time"] as const).map((title, i) => ({
-          id: `from-s2e${i + 1}`,
-          title,
-          episode: i + 1,
-          runtime: 54,
-          synopsis: "The town's dark secrets begin to unravel as survivors search desperately for answers.",
-          thumbnailUrl: `https://picsum.photos/seed/from-s2e${i + 1}/320/180`,
-        })),
-      },
-      {
-        id: "from-s3",
-        number: 3,
-        year: 2024,
-        episodes: (["The Kindred","The Way Out","Origins","The Ritual","Convergence","The Reckoning","Nightfall","Into the Dark","The Truth","Finale"] as const).map((title, i) => ({
-          id: `from-s3e${i + 1}`,
-          title,
-          episode: i + 1,
-          runtime: 56,
-          synopsis: "The final mysteries of the town converge toward a shocking and terrifying conclusion.",
-          thumbnailUrl: `https://picsum.photos/seed/from-s3e${i + 1}/320/180`,
-        })),
-      },
-      {
-        id: "from-s4",
-        number: 4,
-        year: 2025,
-        episodes: (["Out of Nowhere","Deeper Down","No Way Back","The Hunger","Shadows & Light","Unraveling","The Crossing","What Was Lost","Blood and Soil","Into the Unknown"] as const).map((title, i) => ({
-          id: `from-s4e${i + 1}`,
-          title,
-          episode: i + 1,
-          runtime: 56,
-          synopsis: "Survivors uncover a devastating truth about the town's origins as new arrivals shift the balance of power.",
-          thumbnailUrl: `https://picsum.photos/seed/from-s4e${i + 1}/320/180`,
-        })),
-      },
-    ],
   },
 
   // ─── HBO ORIGINALS ──────────────────────────────────────────────────────────
@@ -155,7 +84,6 @@ const content: ContentItem[] = [
     trailerYouTubeId: "OhKAn4I3Q-M",
     creator: "Jesse Armstrong",
     cast: ["Brian Cox", "Jeremy Strong", "Sarah Snook", "Kieran Culkin", "Matthew Macfadyen"],
-    seasons: [{ id: "succ-s1", number: 1, year: 2018, episodes: Array.from({ length: 10 }, (_, i) => ({ id: `succ-s1e${i+1}`, title: `Episode ${i+1}`, episode: i+1, runtime: 58, synopsis: "The Roy family fights for control of their media empire.", thumbnailUrl: `https://picsum.photos/seed/succ-s1e${i+1}/320/180` })) }],
   },
   {
     id: "the-wire",
