@@ -431,83 +431,86 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                     </div>
                   )}
 
-                  {/* ── Episodes (TV only, TMDB-driven) ── */}
+                  {/* ── Episodes (series only, TMDB-driven) ── */}
                   {current?.type === "series" && (tmdbSeasons?.length ?? 0) > 0 && (
                     <div className="space-y-4">
-                      <div className="flex items-center justify-between">
-                        <h3 className="text-white font-bold text-lg">Episodes</h3>
-                        {(tmdbSeasons!.length > 1) && (
-                          <select
-                            value={selectedSeason}
-                            onChange={(e) => setSelectedSeason(Number(e.target.value))}
-                            className="bg-surface-3 border border-border-subtle text-white text-sm rounded-lg px-3 py-1.5 focus:outline-none focus:border-accent-purple"
-                          >
-                            {tmdbSeasons!.map((s, i) => (
-                              <option key={s.number} value={i}>
-                                Season {s.number}{s.year ? ` (${s.year})` : ""}
-                              </option>
-                            ))}
-                          </select>
-                        )}
-                      </div>
+                      <h3 className="text-white font-bold text-lg">Episodes</h3>
 
-                      <div className="rounded-xl bg-zinc-900/80 overflow-hidden border border-white/5">
-                        <div className="max-h-72 lg:max-h-[420px] overflow-y-auto">
-                          {epLoading ? (
-                            <div className="flex items-center gap-3 py-8 px-4 text-zinc-500">
-                              <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
-                              <span className="text-sm">Loading episodes…</span>
-                            </div>
-                          ) : tmdbEpisodes.length === 0 ? (
-                            <p className="text-zinc-500 text-sm py-8 text-center">No episode data available</p>
-                          ) : (
-                            tmdbEpisodes.map((ep, idx) => (
-                              <motion.div
-                                key={ep.number}
-                                whileHover={{ backgroundColor: "rgba(255,255,255,0.06)" }}
-                                className={`flex gap-3 p-3 cursor-pointer group/ep ${
-                                  idx < tmdbEpisodes.length - 1 ? "border-b border-white/5" : ""
-                                }`}
-                                onClick={() => current && onWatch(current, currentSeasonNumber, ep.number)}
-                              >
-                                <div className="relative flex-shrink-0 w-28 sm:w-36 aspect-video rounded-lg overflow-hidden bg-zinc-800">
-                                  {ep.stillUrl ? (
-                                    <Image
-                                      src={ep.stillUrl}
-                                      alt={ep.title}
-                                      fill
-                                      className="object-cover"
-                                      sizes="144px"
-                                    />
-                                  ) : (
-                                    <div className="absolute inset-0 flex items-center justify-center">
-                                      <Film className="w-6 h-6 text-zinc-600" />
-                                    </div>
-                                  )}
-                                  <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/ep:opacity-100 transition-opacity flex items-center justify-center">
-                                    <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
-                                      <Play className="w-4 h-4 text-white fill-white ml-0.5" />
-                                    </div>
-                                  </div>
-                                </div>
-
-                                <div className="flex-1 min-w-0 space-y-1 py-0.5">
-                                  <div className="flex items-baseline justify-between gap-2">
-                                    <p className="text-white font-semibold text-sm truncate">
-                                      {ep.number}. {ep.title}
-                                    </p>
-                                    {ep.runtime && (
-                                      <span className="text-zinc-400 text-xs flex-shrink-0">{ep.runtime}m</span>
-                                    )}
-                                  </div>
-                                  <p style={{ color: "rgba(244,244,245,0.85)" }} className="text-xs leading-relaxed line-clamp-2">
-                                    {ep.synopsis}
-                                  </p>
-                                </div>
-                              </motion.div>
-                            ))
-                          )}
+                      {/* Season tabs — buttons instead of <select> so they work on TV */}
+                      {tmdbSeasons!.length > 1 && (
+                        <div className="flex gap-2 flex-wrap">
+                          {tmdbSeasons!.map((s, i) => (
+                            <button
+                              key={s.number}
+                              onClick={() => setSelectedSeason(i)}
+                              className={`px-4 py-1.5 rounded-lg text-sm font-semibold transition-all ${
+                                selectedSeason === i
+                                  ? "bg-accent-purple text-white shadow-lg shadow-accent-purple/25"
+                                  : "bg-white/10 text-white/60 border border-white/10 hover:bg-white/20 hover:text-white"
+                              }`}
+                            >
+                              Season {s.number}{s.year ? ` (${s.year})` : ""}
+                            </button>
+                          ))}
                         </div>
+                      )}
+
+                      {/* Episode list — no inner scroll, outer modal body scrolls */}
+                      <div className="rounded-xl bg-zinc-900/80 overflow-hidden border border-white/5">
+                        {epLoading ? (
+                          <div className="flex items-center gap-3 py-8 px-4 text-zinc-500">
+                            <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
+                            <span className="text-sm">Loading episodes…</span>
+                          </div>
+                        ) : tmdbEpisodes.length === 0 ? (
+                          <p className="text-zinc-500 text-sm py-8 text-center">No episode data available</p>
+                        ) : (
+                          tmdbEpisodes.map((ep, idx) => (
+                            <motion.div
+                              key={ep.number}
+                              whileHover={{ backgroundColor: "rgba(255,255,255,0.06)" }}
+                              className={`flex gap-3 p-3 cursor-pointer group/ep ${
+                                idx < tmdbEpisodes.length - 1 ? "border-b border-white/5" : ""
+                              }`}
+                              onClick={() => current && onWatch(current, currentSeasonNumber, ep.number)}
+                            >
+                              <div className="relative flex-shrink-0 w-28 lg:w-40 aspect-video rounded-lg overflow-hidden bg-zinc-800">
+                                {ep.stillUrl ? (
+                                  <Image
+                                    src={ep.stillUrl}
+                                    alt={ep.title}
+                                    fill
+                                    className="object-cover"
+                                    sizes="(max-width: 900px) 112px, 160px"
+                                  />
+                                ) : (
+                                  <div className="absolute inset-0 flex items-center justify-center">
+                                    <Film className="w-6 h-6 text-zinc-600" />
+                                  </div>
+                                )}
+                                <div className="absolute inset-0 bg-black/40 opacity-0 group-hover/ep:opacity-100 transition-opacity flex items-center justify-center">
+                                  <div className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center">
+                                    <Play className="w-4 h-4 text-white fill-white ml-0.5" />
+                                  </div>
+                                </div>
+                              </div>
+
+                              <div className="flex-1 min-w-0 space-y-1 py-0.5">
+                                <div className="flex items-baseline justify-between gap-2">
+                                  <p className="text-white font-semibold text-sm truncate">
+                                    {ep.number}. {ep.title}
+                                  </p>
+                                  {ep.runtime && (
+                                    <span className="text-zinc-400 text-xs flex-shrink-0">{ep.runtime}m</span>
+                                  )}
+                                </div>
+                                <p style={{ color: "rgba(244,244,245,0.85)" }} className="text-xs leading-relaxed line-clamp-2">
+                                  {ep.synopsis}
+                                </p>
+                              </div>
+                            </motion.div>
+                          ))
+                        )}
                       </div>
                     </div>
                   )}
