@@ -249,29 +249,29 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                 </div>
 
                 {/* ── Synopsis ── */}
-                <p className="text-white leading-relaxed text-sm sm:text-base">{item.synopsis}</p>
+                <p style={{ color: "#f4f4f5" }} className="leading-relaxed text-sm sm:text-base">{item.synopsis}</p>
 
                 {/* ── Details ── */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                   {item.cast && (
                     <div>
-                      <span className="text-zinc-500 font-medium">Cast · </span>
-                      <span className="text-white">{item.cast.join(", ")}</span>
+                      <span style={{ color: "#71717a" }} className="font-medium">Cast · </span>
+                      <span style={{ color: "#f4f4f5" }}>{item.cast.join(", ")}</span>
                     </div>
                   )}
                   {item.creator && (
                     <div>
-                      <span className="text-zinc-500 font-medium">Creator · </span>
-                      <span className="text-white">{item.creator}</span>
+                      <span style={{ color: "#71717a" }} className="font-medium">Creator · </span>
+                      <span style={{ color: "#f4f4f5" }}>{item.creator}</span>
                     </div>
                   )}
                   <div>
-                    <span className="text-zinc-500 font-medium">Genres · </span>
-                    <span className="text-white">{item.genres.join(", ")}</span>
+                    <span style={{ color: "#71717a" }} className="font-medium">Genres · </span>
+                    <span style={{ color: "#f4f4f5" }}>{item.genres.join(", ")}</span>
                   </div>
                   {item.tagline && (
                     <div className="sm:col-span-2">
-                      <span className="text-zinc-400 italic text-sm">&ldquo;{item.tagline}&rdquo;</span>
+                      <span style={{ color: "#a1a1aa" }} className="italic text-sm">&ldquo;{item.tagline}&rdquo;</span>
                     </div>
                   )}
                 </div>
@@ -347,7 +347,7 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                                   <span className="text-zinc-400 text-xs flex-shrink-0">{ep.runtime}m</span>
                                 )}
                               </div>
-                              <p className="text-white/90 text-xs leading-relaxed line-clamp-2">{ep.synopsis}</p>
+                              <p style={{ color: "rgba(244,244,245,0.85)" }} className="text-xs leading-relaxed line-clamp-2">{ep.synopsis}</p>
                             </div>
                           </motion.div>
                         ))}
