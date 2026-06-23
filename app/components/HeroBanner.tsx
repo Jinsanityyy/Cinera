@@ -3,7 +3,7 @@
 import { useState, useEffect, useCallback, useRef } from "react";
 import Image from "next/image";
 import { motion, AnimatePresence } from "framer-motion";
-import { Play, Plus, Info, Check, Volume2, VolumeX } from "lucide-react";
+import { Play, Plus, Info, Check } from "lucide-react";
 import { ContentItem } from "@/data/content";
 import { useMyList } from "@/app/hooks/useMyList";
 import { useTMDB } from "@/app/hooks/useTMDB";
@@ -48,7 +48,6 @@ function sendYTCommand(iframe: HTMLIFrameElement | null, func: string) {
 export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: HeroBannerProps) {
   const [current, setCurrent] = useState(0);
   const [trailerActive, setTrailerActive] = useState(false);
-  const [muted, setMuted] = useState(true);
   const [origin, setOrigin] = useState("");
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const activateTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -71,6 +70,7 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
   }, [modalOpen]);
 
   const stopTrailer = useCallback(() => {
+    sendYTCommand(iframeRef.current, "mute");
     sendYTCommand(iframeRef.current, "pauseVideo");
     setTrailerActive(false);
   }, []);
@@ -79,12 +79,13 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
     if (activateTimer.current) clearTimeout(activateTimer.current);
     if (deactivateTimer.current) clearTimeout(deactivateTimer.current);
     setTrailerActive(false);
-    setMuted(true);
     if (reducedMotion.current) return;
 
     activateTimer.current = setTimeout(() => {
       if (!modalOpenRef.current && !document.hidden) {
         setTrailerActive(true);
+        // Unmute after iframe has had time to start playing
+        setTimeout(() => sendYTCommand(iframeRef.current, "unMute"), 2000);
       }
       deactivateTimer.current = setTimeout(stopTrailer, 30000);
     }, 3000);
@@ -144,14 +145,6 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
     document.addEventListener("visibilitychange", handleVisibility);
     return () => document.removeEventListener("visibilitychange", handleVisibility);
   }, [trailerActive]);
-
-  const toggleMute = useCallback(() => {
-    setMuted((prev) => {
-      const next = !prev;
-      sendYTCommand(iframeRef.current, next ? "mute" : "unMute");
-      return next;
-    });
-  }, []);
 
   useEffect(() => {
     return () => {
@@ -317,41 +310,18 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
         </AnimatePresence>
       </div>
 
-      {/* Bottom-right controls: mute toggle + slide indicators */}
-      <div className="absolute bottom-4 sm:bottom-6 right-4 sm:right-10 z-10 flex items-center gap-3">
-        <AnimatePresence>
-          {trailerActive && (
-            <motion.button
-              initial={{ opacity: 0, scale: 0.8 }}
-              animate={{ opacity: 1, scale: 1 }}
-              exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.2 }}
-              onClick={toggleMute}
-              className="w-10 h-10 sm:w-8 sm:h-8 rounded-full border border-white/30 bg-black/40 backdrop-blur-sm flex items-center justify-center hover:border-white/60 transition-colors"
-              aria-label={muted ? "Unmute trailer" : "Mute trailer"}
-            >
-              {muted ? (
-                <VolumeX className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-white" />
-              ) : (
-                <Volume2 className="w-4 h-4 sm:w-3.5 sm:h-3.5 text-white" />
-              )}
-            </motion.button>
-          )}
-        </AnimatePresence>
-
-        {/* Dots — clickable on desktop, swipe on mobile */}
-        <div className="flex items-center gap-2">
-          {items.map((_, i) => (
-            <button
-              key={i}
-              onClick={() => setCurrent(i)}
-              className={`h-1 rounded-full transition-all duration-500 ${
-                i === current ? "w-6 bg-white" : "w-2 bg-white/30"
-              }`}
-              aria-label={`Go to slide ${i + 1}`}
-            />
-          ))}
-        </div>
+      {/* Bottom-right controls: slide indicators */}
+      <div className="absolute bottom-4 sm:bottom-6 right-4 sm:right-10 z-10 flex items-center gap-2">
+        {items.map((_, i) => (
+          <button
+            key={i}
+            onClick={() => setCurrent(i)}
+            className={`h-1 rounded-full transition-all duration-500 ${
+              i === current ? "w-6 bg-white" : "w-2 bg-white/30"
+            }`}
+            aria-label={`Go to slide ${i + 1}`}
+          />
+        ))}
       </div>
     </section>
   );
