@@ -7,6 +7,7 @@ import ContentRow from "./components/ContentRow";
 import TitleModal from "./components/TitleModal";
 import TrailerPlayer from "./components/TrailerPlayer";
 import VideoPlayer from "./components/VideoPlayer";
+import QuickGrid from "./components/QuickGrid";
 import { allContent, rows } from "@/data/content";
 import type { ContentItem } from "@/data/content";
 
@@ -16,6 +17,8 @@ const heroItems: ContentItem[] = [
   allContent.find((c) => c.id === "the-last-of-us")!,
   allContent.find((c) => c.id === "succession")!,
 ].filter(Boolean);
+
+const quickItems = rows[0].items.slice(0, 6);
 
 export default function HomePage() {
   const [selected, setSelected] = useState<ContentItem | null>(null);
@@ -38,7 +41,11 @@ export default function HomePage() {
     <main className="min-h-screen bg-base">
       <HeroBanner items={heroItems} onMoreInfo={setSelected} onPlay={handlePlay} modalOpen={!!(selected || trailer || video)} />
 
-      <section className="relative z-10 -mt-16 sm:-mt-24 space-y-6 pb-20">
+      <div className="relative z-10">
+        {/* Spotify-style quick-access grid — mobile only */}
+        <QuickGrid items={quickItems} onSelect={setSelected} />
+
+        <section className="sm:-mt-24 space-y-6 pb-20 mt-4 sm:mt-0">
         {rows.map((row, i) => (
           <motion.div
             key={row.id}
@@ -54,7 +61,8 @@ export default function HomePage() {
             />
           </motion.div>
         ))}
-      </section>
+        </section>
+      </div>
 
       <footer className="border-t border-border-subtle py-10 px-6 sm:px-10 lg:px-16">
         <div className="max-w-[1600px] mx-auto flex flex-col sm:flex-row items-center justify-between gap-4">

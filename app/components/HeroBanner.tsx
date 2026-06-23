@@ -151,7 +151,7 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
       : null;
 
   return (
-    <section className="relative w-full h-[58vh] sm:h-[75vh] lg:h-[85vh] min-h-[360px] sm:min-h-[480px] lg:min-h-[560px] max-h-[900px] overflow-hidden bg-base">
+    <section className="relative w-full h-[42vh] sm:h-[75vh] lg:h-[85vh] min-h-[270px] sm:min-h-[480px] lg:min-h-[560px] max-h-[900px] overflow-hidden bg-base">
       {/* Backdrop */}
       <AnimatePresence mode="wait">
         <motion.div
@@ -201,7 +201,7 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
       <div className="absolute top-0 left-0 right-0 h-40 bg-gradient-to-b from-base/60 to-transparent z-[3] pointer-events-none" />
 
       {/* Content */}
-      <div className="relative z-10 flex flex-col justify-end h-full pb-10 sm:pb-20 lg:pb-24 px-4 sm:px-10 lg:px-16 max-w-3xl">
+      <div className="relative z-10 flex flex-col justify-end h-full pb-6 sm:pb-20 lg:pb-24 px-4 sm:px-10 lg:px-16 max-w-3xl">
         <AnimatePresence mode="wait">
           <motion.div
             key={item.id}
@@ -211,8 +211,8 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
             transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
             className="space-y-4"
           >
-            {/* Badges */}
-            <div className="flex items-center gap-2 flex-wrap">
+            {/* Badges — hidden on mobile to keep hero compact */}
+            <div className="hidden sm:flex items-center gap-2 flex-wrap">
               {item.featured && (
                 <span className="text-xs font-bold tracking-widest text-accent-purple uppercase">
                   ★ Featured
@@ -231,19 +231,19 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
             </div>
 
             {/* Title */}
-            <h1 className="text-4xl sm:text-5xl lg:text-7xl xl:text-8xl font-black tracking-tighter text-white leading-[0.9] drop-shadow-2xl">
+            <h1 className="text-3xl sm:text-5xl lg:text-7xl xl:text-8xl font-black tracking-tighter text-white leading-[0.9] drop-shadow-2xl">
               {item.title}
             </h1>
 
-            {/* Tagline */}
+            {/* Tagline — hidden on mobile */}
             {item.tagline && (
-              <p className="text-base sm:text-lg text-accent-purple-light font-medium italic tracking-wide">
+              <p className="hidden sm:block text-base sm:text-lg text-accent-purple-light font-medium italic tracking-wide">
                 &ldquo;{item.tagline}&rdquo;
               </p>
             )}
 
-            {/* Match & genres */}
-            <div className="flex items-center gap-3 flex-wrap">
+            {/* Match & genres — hidden on mobile */}
+            <div className="hidden sm:flex items-center gap-3 flex-wrap">
               <span className={`text-sm font-bold ${item.matchPercent >= 90 ? "text-green-400" : "text-yellow-400"}`}>
                 {item.matchPercent}% Match
               </span>
@@ -293,8 +293,8 @@ export default function HeroBanner({ items, onMoreInfo, onPlay, modalOpen }: Her
         </AnimatePresence>
       </div>
 
-      {/* Bottom-right controls: mute toggle + slide indicators */}
-      <div className="absolute bottom-6 right-6 sm:right-10 z-10 flex items-center gap-3">
+      {/* Bottom-right controls: mute toggle + slide indicators — hidden on mobile */}
+      <div className="hidden sm:flex absolute bottom-6 right-6 sm:right-10 z-10 items-center gap-3">
         <AnimatePresence>
           {trailerActive && (
             <motion.button

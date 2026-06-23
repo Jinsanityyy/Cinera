@@ -42,14 +42,18 @@ export default function ContentRow({ label, items, onSelect, onPlay }: ContentRo
       onMouseLeave={() => setRowHovered(false)}
     >
       {/* Row header */}
-      <div className="flex items-center gap-3 px-3 sm:px-8 lg:px-16 mb-3">
-        <h2 className="text-white font-bold text-base sm:text-lg tracking-tight">{label}</h2>
+      <div className="flex items-center justify-between px-3 sm:px-8 lg:px-16 mb-3">
+        <h2 className="text-white font-bold text-[15px] sm:text-lg tracking-tight">{label}</h2>
+        {/* "See all" always visible on mobile, hover-only on desktop */}
         <motion.span
           animate={{ opacity: rowHovered ? 1 : 0, x: rowHovered ? 0 : -4 }}
-          className="text-accent-purple text-xs font-semibold tracking-widest uppercase cursor-pointer hover:text-accent-purple-light transition-colors"
+          className="hidden sm:block text-accent-purple text-xs font-semibold tracking-widest uppercase cursor-pointer hover:text-accent-purple-light transition-colors"
         >
           Explore All →
         </motion.span>
+        <span className="sm:hidden text-accent-purple text-[11px] font-bold tracking-wider uppercase">
+          See all
+        </span>
       </div>
 
       {/* Scroll container */}
