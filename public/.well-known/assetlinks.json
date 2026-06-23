@@ -1,0 +1,10 @@
+[{
+  "relation": ["delegate_permission/common.handle_all_urls"],
+  "target": {
+    "namespace": "android_app",
+    "package_name": "app.vercel.cinera_ashen",
+    "sha256_cert_fingerprints": [
+      "E0:90:CC:3C:51:6F:25:5C:5F:25:3A:70:71:59:18:1E:BC:7F:3E:C9:5E:EC:10:87:A2:C6:B7:89:A2:67:3E:0D"
+    ]
+  }
+}]
