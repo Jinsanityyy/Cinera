@@ -3123,6 +3123,16 @@ export const rows = [
     items: ["squid-game","silo","fallout","shogun","severance","the-bear","true-detective","andor","the-boys","beef","arcane","yellowstone"].map(id => content.find(c => c.id === id)!).filter(Boolean),
   },
   {
+    id: "finance-series",
+    label: "Finance & Power Series",
+    items: ["billions","industry","succession","wecrashed","the-dropout","super-pumped","dirty-money","ozark","mindhunter"].map(id => content.find(c => c.id === id)!).filter(Boolean),
+  },
+  {
+    id: "wall-street-movies",
+    label: "Wall Street & Trading Movies",
+    items: ["wolf-of-wall-street","the-big-short","margin-call","wall-street","dumb-money","money-monster","boiler-room","the-laundromat","inside-job","the-irishman"].map(id => content.find(c => c.id === id)!).filter(Boolean),
+  },
+  {
     id: "hbo-originals",
     label: "HBO Originals",
     items: ["succession","the-wire","the-last-of-us","house-of-dragon","euphoria","true-detective","white-lotus","chernobyl"].map(id => content.find(c => c.id === id)!).filter(Boolean),
@@ -3256,16 +3266,6 @@ export const rows = [
     id: "anime-movies",
     label: "Must-Watch Anime Movies",
     items: ["spirited-away","your-name","a-silent-voice","demon-slayer-movie","weathering-with-you","akira","ghost-in-the-shell","princess-mononoke","howls-moving-castle","my-neighbor-totoro"].map(id => content.find(c => c.id === id)!).filter(Boolean),
-  },
-  {
-    id: "finance-series",
-    label: "Finance & Power Series",
-    items: ["billions","industry","succession","wecrashed","the-dropout","super-pumped","dirty-money","ozark","mindhunter"].map(id => content.find(c => c.id === id)!).filter(Boolean),
-  },
-  {
-    id: "wall-street-movies",
-    label: "Wall Street & Trading Movies",
-    items: ["wolf-of-wall-street","the-big-short","margin-call","wall-street","dumb-money","money-monster","boiler-room","the-laundromat","inside-job","the-irishman"].map(id => content.find(c => c.id === id)!).filter(Boolean),
   },
 ];
 
