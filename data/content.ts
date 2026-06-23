@@ -2796,7 +2796,7 @@ const content: ContentItem[] = [
     id: "weathering-with-you",
     title: "Weathering With You",
     type: "movie",
-    tmdbId: 602222,
+    tmdbId: 568160,
     tmdbType: "movie",
     backdropUrl: G.anime,
     posterUrl: G.anime,
