@@ -28,15 +28,15 @@ function WatchProviders({ tmdbData, loading }: { tmdbData: TMDBData | null; load
   if (loading) {
     return (
       <div className="flex items-center gap-3 py-2">
-        <Loader2 className="w-4 h-4 text-white/30 animate-spin" />
-        <span className="text-white/30 text-sm">Checking availability…</span>
+        <Loader2 className="w-4 h-4 text-zinc-500 animate-spin" />
+        <span className="text-zinc-400 text-sm">Checking availability…</span>
       </div>
     );
   }
 
   if (!hasAny) {
     return (
-      <p className="text-white/30 text-sm italic">
+      <p className="text-zinc-400 text-sm italic">
         Availability data not found for your region. Try searching on{" "}
         <a
           href="https://www.justwatch.com"
@@ -60,7 +60,7 @@ function WatchProviders({ tmdbData, loading }: { tmdbData: TMDBData | null; load
   }) =>
     providers.length > 0 ? (
       <div className="space-y-2">
-        <p className="text-white/35 text-xs font-semibold uppercase tracking-widest">{label}</p>
+        <p className="text-zinc-500 text-xs font-semibold uppercase tracking-widest">{label}</p>
         <div className="flex flex-wrap gap-2">
           {providers.map((p) => (
             <motion.a
@@ -95,7 +95,7 @@ function WatchProviders({ tmdbData, loading }: { tmdbData: TMDBData | null; load
       <ProviderGroup label="Stream" providers={streaming} />
       <ProviderGroup label="Rent" providers={rent} />
       <ProviderGroup label="Buy" providers={buy} />
-      <p className="text-white/25 text-[10px]">
+      <p className="text-zinc-500 text-[10px]">
         Availability shown for US region · Powered by TMDB &amp; JustWatch
       </p>
     </div>
@@ -214,8 +214,8 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                   <div className="absolute inset-0 skeleton opacity-60" />
                 )}
 
-                {/* Scrim */}
-                <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/40 to-transparent" />
+                {/* Scrim — heavier at bottom so body text never sits against the image */}
+                <div className="absolute inset-0 bg-gradient-to-t from-surface via-surface/70 to-black/10" />
 
                 {/* Play trailer overlay button */}
                 {trailerKey && (
@@ -247,8 +247,8 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
               </button>
             </div>
 
-            {/* ── Scrollable body ── */}
-            <div className="overflow-y-auto flex-1">
+            {/* ── Scrollable body ── explicit bg ensures no image bleedthrough */}
+            <div className="overflow-y-auto flex-1 bg-surface">
               <div className="px-6 sm:px-8 pb-8 space-y-6">
                 {/* Title row */}
                 <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 pt-2">
@@ -260,21 +260,21 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                       <span className={`text-sm font-bold ${item.matchPercent >= 90 ? "text-green-400" : "text-yellow-400"}`}>
                         {item.matchPercent}% Match
                       </span>
-                      <span className="text-sm text-white/50">{item.year}</span>
+                      <span className="text-sm text-zinc-400">{item.year}</span>
                       {item.type === "series" && tmdbSeasons && tmdbSeasons.length > 0 && (
-                        <span className="text-sm text-white/50">
+                        <span className="text-sm text-zinc-400">
                           {tmdbSeasons.length} Season{tmdbSeasons.length !== 1 ? "s" : ""}
                         </span>
                       )}
                       {item.type === "movie" && tmdbData?.runtime && (
-                        <span className="text-sm text-white/50 flex items-center gap-1">
+                        <span className="text-sm text-zinc-400 flex items-center gap-1">
                           <Clock className="w-3.5 h-3.5" />{tmdbData.runtime}m
                         </span>
                       )}
                       {item.type === "movie" && !tmdbData?.runtime && item.duration && (
-                        <span className="text-sm text-white/50">{item.duration}</span>
+                        <span className="text-sm text-zinc-400">{item.duration}</span>
                       )}
-                      <span className="text-xs border border-white/20 text-white/50 px-1.5 py-0.5 rounded">
+                      <span className="text-xs border border-white/30 text-zinc-400 px-1.5 py-0.5 rounded">
                         {item.maturityRating}
                       </span>
                     </div>
@@ -334,29 +334,29 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                 </div>
 
                 {/* Synopsis */}
-                <p className="text-white/80 leading-relaxed text-sm sm:text-base">{item.synopsis}</p>
+                <p className="text-zinc-200 leading-relaxed text-sm sm:text-base">{item.synopsis}</p>
 
                 {/* Details */}
                 <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-sm">
                   {item.cast && (
                     <div>
-                      <span className="text-white/35 font-medium">Cast · </span>
-                      <span className="text-white/70">{item.cast.join(", ")}</span>
+                      <span className="text-zinc-500 font-medium">Cast · </span>
+                      <span className="text-zinc-200">{item.cast.join(", ")}</span>
                     </div>
                   )}
                   {item.creator && (
                     <div>
-                      <span className="text-white/35 font-medium">Creator · </span>
-                      <span className="text-white/70">{item.creator}</span>
+                      <span className="text-zinc-500 font-medium">Creator · </span>
+                      <span className="text-zinc-200">{item.creator}</span>
                     </div>
                   )}
                   <div>
-                    <span className="text-white/35 font-medium">Genres · </span>
-                    <span className="text-white/70">{item.genres.join(", ")}</span>
+                    <span className="text-zinc-500 font-medium">Genres · </span>
+                    <span className="text-zinc-200">{item.genres.join(", ")}</span>
                   </div>
                   {item.tagline && (
                     <div className="sm:col-span-2">
-                      <span className="text-white/30 italic text-sm">&ldquo;{item.tagline}&rdquo;</span>
+                      <span className="text-zinc-400 italic text-sm">&ldquo;{item.tagline}&rdquo;</span>
                     </div>
                   )}
                 </div>
@@ -366,7 +366,7 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                   <div className="flex items-center gap-2">
                     <Tv2 className="w-4 h-4 text-accent-purple" />
                     <h3 className="text-white font-bold text-base">Where to Watch</h3>
-                    <span className="text-[10px] text-white/30 font-medium uppercase tracking-widest ml-auto">
+                    <span className="text-[10px] text-zinc-500 font-medium uppercase tracking-widest ml-auto">
                       Legal · Licensed
                     </span>
                   </div>
@@ -398,12 +398,12 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
 
                     <div className="space-y-2 max-h-72 overflow-y-auto pr-1">
                       {epLoading ? (
-                        <div className="flex items-center gap-3 py-6 text-white/30">
+                        <div className="flex items-center gap-3 py-6 text-zinc-500">
                           <Loader2 className="w-4 h-4 animate-spin flex-shrink-0" />
                           <span className="text-sm">Loading episodes…</span>
                         </div>
                       ) : tmdbEpisodes.length === 0 ? (
-                        <p className="text-white/30 text-sm py-4 text-center">No episode data available</p>
+                        <p className="text-zinc-500 text-sm py-4 text-center">No episode data available</p>
                       ) : tmdbEpisodes.map((ep) => (
                         <motion.div
                           key={ep.number}
@@ -437,10 +437,10 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                                 {ep.number}. {ep.title}
                               </p>
                               {ep.runtime && (
-                                <span className="text-white/40 text-xs flex-shrink-0">{ep.runtime}m</span>
+                                <span className="text-zinc-400 text-xs flex-shrink-0">{ep.runtime}m</span>
                               )}
                             </div>
-                            <p className="text-white/50 text-xs leading-relaxed line-clamp-2">{ep.synopsis}</p>
+                            <p className="text-zinc-400 text-xs leading-relaxed line-clamp-2">{ep.synopsis}</p>
                           </div>
                         </motion.div>
                       ))}
@@ -449,7 +449,7 @@ export default function TitleModal({ item, onClose, onPlay, onWatch }: TitleModa
                     {/* Legal note for episodes */}
                     <div className="flex items-start gap-2 p-3 bg-surface-3 rounded-xl border border-border-subtle">
                       <ExternalLink className="w-4 h-4 text-accent-purple mt-0.5 flex-shrink-0" />
-                      <p className="text-white/40 text-xs leading-relaxed">
+                      <p className="text-zinc-400 text-xs leading-relaxed">
                         CINERA is a discovery platform — full episodes are available on licensed streaming services above.
                         We show trailers and help you find where to watch legally.
                       </p>
