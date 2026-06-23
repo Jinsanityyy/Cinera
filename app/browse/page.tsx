@@ -4,7 +4,7 @@ import { useState, useMemo } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Search, X } from "lucide-react";
 import { allContent, allGenres } from "@/data/content";
-import type { ContentItem } from "@/data/content";
+import type { ContentItem, Season } from "@/data/content";
 import ContentCard from "@/app/components/ContentCard";
 import TitleModal from "@/app/components/TitleModal";
 import TrailerPlayer from "@/app/components/TrailerPlayer";
@@ -16,7 +16,7 @@ export default function BrowsePage() {
   const [typeFilter, setTypeFilter] = useState<"all" | "movie" | "series">("all");
   const [selected, setSelected] = useState<ContentItem | null>(null);
   const [trailer, setTrailer] = useState<{ videoId: string; title: string } | null>(null);
-  const [video, setVideo] = useState<{ contentId: string; title: string; season: number; episode: number } | null>(null);
+  const [video, setVideo] = useState<{ contentId: string; title: string; season: number; episode: number; seasons?: Season[] } | null>(null);
 
   const handlePlay = (item: ContentItem, trailerKey?: string) => {
     const vid = trailerKey ?? item.trailerYouTubeId;
@@ -25,7 +25,7 @@ export default function BrowsePage() {
 
   const handleWatch = (item: ContentItem, season = 1, episode = 1) => {
     setSelected(null);
-    setVideo({ contentId: item.id, title: item.title, season, episode });
+    setVideo({ contentId: item.id, title: item.title, season, episode, seasons: item.seasons });
   };
 
   const filtered = useMemo(() => {
@@ -195,6 +195,7 @@ export default function BrowsePage() {
         title={video?.title ?? ""}
         season={video?.season}
         episode={video?.episode}
+        seasons={video?.seasons}
         onClose={() => setVideo(null)}
       />
     </main>
