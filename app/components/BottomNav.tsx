@@ -25,33 +25,33 @@ export default function BottomNav() {
         paddingBottom: "env(safe-area-inset-bottom, 0px)",
       }}
     >
-      <div className="flex items-stretch justify-around h-[76px]">
+      <div className="flex items-stretch justify-around h-[82px]">
         {tabs.map(({ href, label, icon: Icon }) => {
           const active = pathname === href;
           return (
             <Link
               key={href}
               href={href}
-              className="relative flex flex-col items-center justify-center gap-1.5 flex-1 min-h-full pt-1"
+              className="relative flex flex-col items-center justify-center gap-2 flex-1 min-h-full pt-1"
             >
               {active && (
                 <motion.div
                   layoutId="bottom-tab-pill"
-                  className="absolute top-0 left-1/2 -translate-x-1/2 w-12 h-[3px] rounded-full bg-accent-purple"
+                  className="absolute top-0 left-1/2 -translate-x-1/2 w-14 h-[3px] rounded-full bg-accent-purple"
                   transition={{ type: "spring", stiffness: 400, damping: 30 }}
                 />
               )}
               <motion.div whileTap={{ scale: 0.75 }} transition={{ duration: 0.1 }}>
                 <Icon
-                  className={`w-[26px] h-[26px] transition-colors duration-200 ${
-                    active ? "text-accent-purple" : "text-white/45"
+                  className={`w-7 h-7 transition-colors duration-200 ${
+                    active ? "text-accent-purple" : "text-white/50"
                   }`}
                   strokeWidth={active ? 2.2 : 1.8}
                 />
               </motion.div>
               <span
-                className={`text-[12px] font-semibold tracking-wide transition-colors duration-200 ${
-                  active ? "text-accent-purple" : "text-white/45"
+                className={`text-[13px] font-semibold tracking-wide transition-colors duration-200 ${
+                  active ? "text-accent-purple" : "text-white/50"
                 }`}
               >
                 {label}

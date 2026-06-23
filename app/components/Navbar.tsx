@@ -35,10 +35,10 @@ export default function Navbar() {
       transition={{ duration: 0.6, ease: [0.22, 1, 0.36, 1] }}
     >
       <div className="max-w-[1600px] mx-auto px-4 sm:px-6 lg:px-10">
-        <div className="flex items-center justify-between h-16 lg:h-[72px]">
+        <div className="flex items-center justify-between h-[64px] lg:h-[72px]">
           {/* Wordmark */}
-          <Link href="/" className="flex items-center gap-2.5 flex-shrink-0 group">
-            <div className="relative w-8 h-8 lg:w-7 lg:h-7 flex-shrink-0">
+          <Link href="/" className="flex items-center gap-3 flex-shrink-0 group">
+            <div className="relative w-9 h-9 lg:w-7 lg:h-7 flex-shrink-0">
               <svg viewBox="0 0 28 28" fill="none" className="w-full h-full drop-shadow-lg">
                 <defs>
                   <linearGradient id="cineraGrad" x1="0" y1="0" x2="28" y2="28" gradientUnits="userSpaceOnUse">
@@ -50,7 +50,7 @@ export default function Navbar() {
                 <path d="M11 9.5L20 14L11 18.5V9.5Z" fill="white" fillOpacity="0.95" />
               </svg>
             </div>
-            <span className="text-[18px] lg:text-xl font-black tracking-[0.22em] text-white select-none group-hover:text-white/90 transition-colors">
+            <span className="text-[20px] lg:text-xl font-black tracking-[0.22em] text-white select-none group-hover:text-white/90 transition-colors">
               CINERA
             </span>
           </Link>
@@ -73,18 +73,20 @@ export default function Navbar() {
           </nav>
 
           {/* Right actions */}
-          <div className="flex items-center gap-1">
+          <div className="flex items-center gap-0.5">
+            {/* Search — large tap target */}
             <Link
               href="/browse"
-              className="p-3 rounded-xl text-white/70 hover:text-white hover:bg-white/10 transition-all duration-200 active:bg-white/15"
+              className="w-11 h-11 flex items-center justify-center rounded-full text-white/70 hover:text-white active:bg-white/10 transition-all duration-200"
               aria-label="Search"
             >
-              <Search className="w-[22px] h-[22px] lg:w-5 lg:h-5" />
+              <Search className="w-6 h-6 lg:w-5 lg:h-5" />
             </Link>
 
-            <Link href="/profiles" className="p-1 flex items-center group">
+            {/* Profile avatar — clearly tappable */}
+            <Link href="/profiles" className="w-11 h-11 flex items-center justify-center">
               <div
-                className={`w-10 h-10 lg:w-9 lg:h-9 rounded-xl flex-shrink-0 overflow-hidden text-lg ${
+                className={`w-[42px] h-[42px] lg:w-9 lg:h-9 rounded-xl flex-shrink-0 overflow-hidden ring-2 ring-white/20 text-xl ${
                   activeProfile?.avatarUrl
                     ? ""
                     : activeProfile
@@ -96,8 +98,8 @@ export default function Navbar() {
                   <Image
                     src={activeProfile.avatarUrl}
                     alt={activeProfile.name}
-                    width={40}
-                    height={40}
+                    width={42}
+                    height={42}
                     className="w-full h-full object-cover"
                   />
                 ) : activeProfile ? (
