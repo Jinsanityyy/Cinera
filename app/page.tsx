@@ -10,8 +10,12 @@ import TrailerPlayer from "./components/TrailerPlayer";
 import VideoPlayer from "./components/VideoPlayer";
 import QuickGrid from "./components/QuickGrid";
 import PullToRefresh from "./components/PullToRefresh";
+import ReelsRow from "./components/ReelsRow";
+import ReelsViewer from "./components/ReelsViewer";
 import { allContent, rows } from "@/data/content";
 import type { ContentItem } from "@/data/content";
+import { reelSeries } from "@/data/reels";
+import type { ReelSeries } from "@/data/reels";
 
 const heroItems: ContentItem[] = [
   allContent.find((c) => c.id === "from-mgm")!,
@@ -26,6 +30,7 @@ export default function HomePage() {
   const [selected, setSelected] = useState<ContentItem | null>(null);
   const [trailer, setTrailer] = useState<{ videoId: string; title: string } | null>(null);
   const [video, setVideo] = useState<{ contentId: string; title: string; season: number; episode: number; tmdbId?: number; tmdbType?: "movie" | "tv" } | null>(null);
+  const [selectedReel, setSelectedReel] = useState<{ series: ReelSeries; episode: number } | null>(null);
   const router = useRouter();
 
   const handlePlay = (item: ContentItem, trailerKey?: string) => {
@@ -65,12 +70,22 @@ export default function HomePage() {
           <QuickGrid items={quickItems} onSelect={setSelected} />
 
           <section className="sm:-mt-24 space-y-6 pb-20 mt-4 sm:mt-0">
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            >
+              <ReelsRow
+                series={reelSeries}
+                onSelect={(s, ep) => setSelectedReel({ series: s, episode: ep ?? 1 })}
+              />
+            </motion.div>
           {rows.map((row, i) => (
             <motion.div
               key={row.id}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: i * 0.06, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+              transition={{ delay: (i + 1) * 0.06, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             >
               <ContentRow
                 label={row.label}
@@ -98,6 +113,11 @@ export default function HomePage() {
         </footer>
       </PullToRefresh>
 
+      <ReelsViewer
+        series={selectedReel?.series ?? null}
+        initialEpisode={selectedReel?.episode}
+        onClose={() => setSelectedReel(null)}
+      />
       <TitleModal
         item={selected}
         onClose={() => setSelected(null)}
