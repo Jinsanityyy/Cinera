@@ -192,7 +192,7 @@ body {
 .pb-nav-safe {
   padding-bottom: calc(104px + env(safe-area-inset-bottom, 0px));
 }
-@media (min-width: 1024px) {
+@media (min-width: 960px) {
   .pb-nav-safe { padding-bottom: 0; }
 }
 

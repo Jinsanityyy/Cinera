@@ -2,7 +2,7 @@
 
 import { useState, useEffect, useCallback, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { X, ChevronUp, ChevronDown, ChevronLeft, ChevronRight, List } from "lucide-react";
+import { X, ChevronUp, ChevronDown, ChevronRight, List } from "lucide-react";
 import type { ReelSeries, ReelEpisode } from "@/data/reels";
 
 interface ReelsViewerProps {

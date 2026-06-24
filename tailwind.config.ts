@@ -74,7 +74,7 @@ const config: Config = {
       },
       screens: {
         xs: "480px",
-        lg: "900px",
+        lg: "960px",
       },
     },
   },
